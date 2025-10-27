@@ -1,12 +1,9 @@
 from .base import *
+import os
 
 DEBUG = True
-ALLOWED_HOSTS = ["*"]
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-secret-key")
+ALLOWED_HOSTS = ["*"]  # 개발용
 
-# 개발용 DB (SQLite)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'dev.sqlite3',
-    }
-}
+# 개발용 DB: 기본 SQLite 사용
+# DATABASES = same as base.py (필요시 override 가능)
