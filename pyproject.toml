@@ -1,7 +1,22 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "team5 main project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+# 공통으로 필요한 패키지 (배포 환경 포함)
+dependencies = [
+    "django>=5.2.7",
+    "djangorestframework>=3.20"
+]
+# 개발용 패키지 (dev 환경)
+[tool.uv.dev-dependencies]
+lint = ["flake8", "black"]
+testing = ["pytest", "pytest-django", "coverage"]
+
+# 프로덕션 환경에서만 필요한 패키지 (예: 배포용)
+[tool.uv.group.prod]
+gunicorn = ">=21.0"
+psycopg2-binary = ">=2.9"
