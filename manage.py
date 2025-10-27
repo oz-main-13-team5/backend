@@ -19,6 +19,16 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+def run_dev():
+    os.environ["ENV_FILE"] = ".env.dev"
+    from django.core.management import execute_from_command_line
+    execute_from_command_line([sys.argv[0], "runserver"])
+
+def run_prod():
+    os.environ["ENV_FILE"] = ".env.prod"
+    from django.core.management import execute_from_command_line
+    execute_from_command_line([sys.argv[0], "runserver", "0.0.0.0:8000"])
+
 
 if __name__ == '__main__':
     main()

@@ -24,7 +24,3 @@ prod = [
     "gunicorn>=21.0.0,<22.0.0",
     "psycopg2-binary>=2.9.0,<3.0.0"
 ]
-
-[tool.uv.scripts]
-runserver-dev = "uv run python manage.py runserver"
-runserver-prod = "uv run python manage.py runserver 0.0.0.0:8000"
