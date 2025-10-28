@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-env_file = os.getenv("ENV_FILE", ".env.dev")
-load_dotenv(BASE_DIR / env_file)
+ENV_FILE = os.getenv("ENV_FILE", ".env.dev")
+load_dotenv(BASE_DIR / ENV_FILE)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
@@ -94,4 +94,18 @@ TEMPLATES = [
     },
 ]
 
-STATIC_URL = '/static/'
+WSGI_APPLICATION = "config.wsgi.application"
+ROOT_URLCONF = "config.urls"
+
+# 공통 DB 설정 (각 환경에서 덮어쓰기 가능)
+DATABASES = {}
+
+LANGUAGE_CODE = "ko-kr"
+TIME_ZONE = "Asia/Seoul"
+USE_I18N = True
+USE_TZ = True
+
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
