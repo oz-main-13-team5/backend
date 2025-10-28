@@ -3,7 +3,6 @@ import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env_file = os.getenv("ENV_FILE", ".env.dev")
