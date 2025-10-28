@@ -22,17 +22,17 @@ DATABASES = {
         'PORT': os.getenv("DB_PORT"),
     }
 }
-
-INSTALLED_APPS = [
-    'django.contrib.admin',          # admin
-    'django.contrib.auth',           # 사용자 인증
-    'django.contrib.contenttypes',   # 모델 타입 관련
-    'django.contrib.sessions',       # 세션
-    'django.contrib.messages',       # 메시지 프레임워크
-    'django.contrib.staticfiles',    # static 파일 처리
-
-    # 프로젝트 앱
+DJANGO_APPS = [
+    'django.contrib.admin',  # admin
+    'django.contrib.auth',  # 사용자 인증
+    'django.contrib.contenttypes',  # 모델 타입 관련
+    'django.contrib.sessions',  # 세션
+    'django.contrib.messages',  # 메시지 프레임워크
+    'django.contrib.staticfiles',  # static 파일 처리
 ]
+MY_APPS = []
+
+INSTALLED_APPS = [ DJANGO_APPS + MY_APPS]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
