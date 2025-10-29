@@ -1,6 +1,7 @@
 from django.core.mail import send_mail
 from django.conf import settings
 
+
 class EmailService:
     @staticmethod
     def send_verification_email(email: str, code: str):

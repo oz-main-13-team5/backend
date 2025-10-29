@@ -6,9 +6,10 @@ from dotenv import load_dotenv
 
 load_dotenv()  # .env.prod 파일 읽기 (os.environ.setdefault 환경변수)
 
+
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings.dev')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.dev")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -19,16 +20,20 @@ def main():
         ) from exc
     execute_from_command_line(sys.argv)
 
+
 def run_dev():
     os.environ["ENV_FILE"] = ".env.dev"
     from django.core.management import execute_from_command_line
+
     execute_from_command_line([sys.argv[0], "runserver"])
+
 
 def run_prod():
     os.environ["ENV_FILE"] = ".env.prod"
     from django.core.management import execute_from_command_line
+
     execute_from_command_line([sys.argv[0], "runserver", "0.0.0.0:8000"])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

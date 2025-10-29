@@ -1,18 +1,22 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.utils import timezone
 
 
 class ActiveUserQuerySet(models.QuerySet):
-    #활성 사용자만 조회
+    # 활성 사용자만 조회
     def active(self):
         return self.filter(is_active=True)
 
 
 class UserManager(BaseUserManager):
 
-    #user모델을 커스텀 하기 위해 usermanager사용
+    # user모델을 커스텀 하기 위해 usermanager사용
 
     def get_queryset(self):
         return ActiveUserQuerySet(self.model, using=self._db).active()
@@ -35,7 +39,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
     def all_with_deleted(self):
-        #비활성된 계정을 포함해 조회
+        # 비활성된 계정을 포함해 조회
         return super().get_queryset()
 
 
@@ -51,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_login = models.DateTimeField(default=timezone.now)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    is_superuser = models.BooleanField(default=False) # 관리자 계정
+    is_superuser = models.BooleanField(default=False)  # 관리자 계정
     is_active = models.BooleanField(default=True)  # 소프트 삭제를 위한 활성화 필드
 
     EMAIL_FIELD = "email"
@@ -63,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     def soft_delete(self):
-        self.is_active = False # 계정 비활성화
+        self.is_active = False  # 계정 비활성화
         self.save()
 
     def __str__(self):

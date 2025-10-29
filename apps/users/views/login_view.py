@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework.renderers import JSONRenderer
 from apps.users.services.jwt_service import JWTService
 
+
 class LoginView(APIView):
     renderer_classes = [JSONRenderer]
 
@@ -13,7 +14,9 @@ class LoginView(APIView):
 
         user = authenticate(username=email, password=password)
         if not user:
-            return Response({"error": "이메일 또는 비밀번호를 확인해주세요."}, status=400)
+            return Response(
+                {"error": "이메일 또는 비밀번호를 확인해주세요."}, status=400
+            )
 
         token_pair = JWTService.generate_token_pair(user)
 
@@ -24,6 +27,6 @@ class LoginView(APIView):
             httponly=True,
             secure=True,
             samesite="Lax",
-            max_age=60 * 60 * 24 * 14
+            max_age=60 * 60 * 24 * 14,
         )
         return response

@@ -6,6 +6,7 @@ from apps.users.models.refresh_token import RefreshToken
 from apps.users.services.jwt_service import JWTService
 import hashlib
 
+
 class TokenRefreshView(APIView):
     permission_classes = [AllowAny]
 
@@ -28,7 +29,9 @@ class TokenRefreshView(APIView):
             JWTRefreshToken(refresh)  # 유효성 검사
         except Exception:
             stored_rt.blacklist()
-            return Response({"detail": "잘못된 접근입니다. 다시 로그인 해주세요."}, status=401)
+            return Response(
+                {"detail": "잘못된 접근입니다. 다시 로그인 해주세요."}, status=401
+            )
 
         new_token_pair = JWTService.generate_token_pair(stored_rt.user)
         stored_rt.blacklist()
