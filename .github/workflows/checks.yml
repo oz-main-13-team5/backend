@@ -18,7 +18,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
         options: >-
-          --health-cmd="pg_isready -U postgres -d backend"
+          --health-cmd="pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -67,7 +67,7 @@ jobs:
           if command -v pg_isready >/dev/null 2>&1; then
             echo "Using pg_isready..."
             for i in {1..45}; do  # 최대 ~90초
-              if pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+              if pg_isready -h postgres -p 5432 -U "$DB_USER" -d "$DB_NAME" >/dev/null 2>&1; then
                 echo "Postgres is ready."
                 exit 0
               fi
