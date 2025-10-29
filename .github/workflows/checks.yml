@@ -17,8 +17,6 @@ jobs:
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"
           --health-interval=10s
@@ -29,10 +27,15 @@ jobs:
       DB_ENGINE: django.db.backends.postgresql
       DB_HOST: postgres
       DB_PORT: 5432
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      SECRET_KEY: dummy-secret-for-ci-only
       POSTGRES_DB: ${{ secrets.DB_NAME }}
       POSTGRES_USER: ${{ secrets.DB_USER }}
       POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DJANGO_SETTINGS_MODULE: config.settings.dev
+      ENV: dev
 
     steps:
       - name: Checkout code
@@ -91,7 +94,7 @@ jobs:
           uv run python manage.py makemigrations --noinput --settings=config.settings.dev # dev/prod
           uv run python manage.py migrate --noinput --settings=config.settings.dev # dev/prod
 
-      - name: Run Django Tests
+      - name: Run tests (pytest)
         run: |
           unset DATABASE_URL
-          uv run python manage.py test --settings=config.settings.dev
+          uv run pytest -q
