@@ -20,7 +20,7 @@ def main():
     execute_from_command_line(sys.argv)
 
 def run_dev():
-    os.environ["ENV_FILE"] = ".env.dev"
+    os.environ["ENV_FILE"] = ".env.local"
     from django.core.management import execute_from_command_line
     execute_from_command_line([sys.argv[0], "runserver"])
 

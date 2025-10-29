@@ -1,0 +1,96 @@
+name: Code Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -h localhost -p 5432 -U $$POSTGRES_USER -d $$POSTGRES_DB"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DB_ENGINE: django.db.backends.postgresql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      POSTGRES_DB: ${{ secrets.DB_NAME }}
+      POSTGRES_USER: ${{ secrets.DB_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install Packages & Libraries
+        run: uv sync --dev
+
+      - name: Wait for Postgres (robust)
+        timeout-minutes: 3
+        env:
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
+        run: |
+          set -euo pipefail
+          unset DATABASE_URL
+
+          if command -v pg_isready >/dev/null 2>&1; then
+            echo "Using pg_isready..."
+            for i in {1..45}; do  # 최대 ~90초
+              if pg_isready -h 127.0.0.1 -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+                echo "Postgres is ready."
+                exit 0
+              fi
+              sleep 2
+            done
+          else
+            echo "pg_isready not found; falling back to TCP probe..."
+            for i in {1..45}; do
+              (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && { echo "TCP port open."; exit 0; }
+              sleep 2
+            done
+          fi
+
+          echo "Postgres not ready in time"
+          echo "DBG: HOST=127.0.0.1 PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
+          exit 1
+
+      - name: Run ruff (Linting)
+        run: uv run ruff check .
+
+      - name: Run Django Migration
+        run: |
+          unset DATABASE_URL
+          uv run python manage.py makemigrations --noinput
+          uv run python manage.py migrate --noinput
+
+      - name: Run Django Tests
+        run: |
+          unset DATABASE_URL
+          uv run python manage.py test

@@ -1,0 +1,70 @@
+name: Django Project CI
+# Trigger : main 또는 develop 브랜치에 푸쉬되거나 PR 이 생성되는 경우.
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+# Jobs: runs-on에서 ubuntu를 runner 환경으로 지정
+jobs:
+  test:
+    runs-on: ubuntu-latest
+		# services: 리눅스 기반의 운영체제는 서비스 컨테이너를 지정할 수 있다. postgres를 DB로 사용하기 위해 개별적인 컨테이너를 지정하고 실행할 수 있도록 함.
+    services:
+      postgres:
+        image: postgres:15
+        # 각 컨테이너에서 사용될 개별 환경변수를 지정할 수 있음. 여기서는 postgres 컨테이너 생성 및 실행시 사용될 postgres의 유저, 비밀번호, 데이터베이스 이름을 지정함
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_db
+        # postgres에 사용할 port를 지정. 5432 포트로 들어오는 요청을 5432 포트로 포워딩 해줌. (기본값과 동일)
+        ports:
+          - 5432:5432
+        # 컨테이너 실행 시 사용할 수 있는 옵션을 지정해줍니다.
+        # --health-cmd pg_isready : postgres가 정상적으로 실행되었는지 체크하는 명령어
+        # --health-interval 10s : heath check주기를 10초로 설정
+        # --health-timeout 5s : 5초동안 health check 요청에 대한 응답을 받고, 이후에는 타임아웃으로 실행시 문제가 있는것으로 판단
+        # --health-retries 5 : health check의 반복 횟수
+        options: >
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+		# steps: 레포지토리 코드 가져오기 -> 사용할 파이썬 버젼 가져오기 -> poetry 설치 및 종속성 라이브러리 및 패키지 설치 -> 코드 포매팅 체크 -> 정적 타입 검사 -> 커버리지를 활용한 장고 테스트 실행의 종속된 단계를 거쳐 테스트를 실행함
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Packages & Libraries
+        run: |
+          poetry install
+
+      - name: Run code format check (black & isort)
+        run: |
+          poetry run black --check .
+          poetry run isort --check-only .
+
+      - name: Run static type checks (mypy)
+        run: mypy .
+
+      - name: Run tests with coverage
+        run: |
+          poetry run coverage run --source="src" src/manage.py test
+          coverage report --fail-under=80

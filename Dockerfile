@@ -18,24 +18,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # -----------------------
 FROM base AS builder
 
-# 환경 선택: dev 또는 prod (기본값: dev)
-ARG ENV=dev
+# 환경 선택: local 또는 prod (기본값: local)
+ARG ENV=prod
+ENV ENV=$ENV
 
 # requirements 복사
-COPY requirements/$ENV requirements/$ENV
+COPY requirements/$ENV/ requirements/$ENV/
 
 # pyproject.toml과 uv.lock 복사
 COPY pyproject.toml uv.lock ./
 
 # uv 설치
 RUN pip install uv && uv pip install --system .
-
 # requirements 설치
-RUN pip install --no-cache-dir -r requirements/$ENV
-
+RUN pip install --no-cache-dir -r requirements/$ENV/requirements.txt
 # PostgreSQL 드라이버 설치
 RUN pip install --no-cache-dir psycopg[binary]
-
 # dotenv 설치
 RUN pip install --no-cache-dir python-dotenv
 
@@ -45,7 +43,7 @@ RUN pip install --no-cache-dir python-dotenv
 FROM base AS runtime
 
 COPY --from=builder /usr/local /usr/local
-COPY . /app
+COPY . .
 
 # 환경 변수 기본값
 ARG ENV=dev

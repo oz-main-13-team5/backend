@@ -5,22 +5,32 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-ENV_FILE = os.getenv("ENV_FILE", ".env")
-load_dotenv(BASE_DIR / ENV_FILE)
+# 현재 환경 (기본값: local)
+ENV = os.getenv("ENV", "local")
 
+# 환경별 .env 파일 로드
+if ENV == "prod":
+    env_path = BASE_DIR / ".env.prod"
+else:
+    env_path = BASE_DIR / ".env.local"
+
+print(f"✅ Loading environment: {ENV} ({env_path.name})")
+
+load_dotenv(dotenv_path=env_path)
+
+# 예시 환경 변수
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG") == "True"
-
-ALLOWED_HOSTS = []
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv("DB_NAME"),
-        'USER': os.getenv("DB_USER"),
-        'PASSWORD': os.getenv("DB_PASSWORD"),
-        'HOST': os.getenv("DB_HOST"),
-        'PORT': os.getenv("DB_PORT"),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -96,9 +106,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 ROOT_URLCONF = "config.urls"
-
-# 공통 DB 설정 (각 환경에서 덮어쓰기 가능)
-DATABASES = {}
 
 LANGUAGE_CODE = "ko-kr"
 TIME_ZONE = "Asia/Seoul"
