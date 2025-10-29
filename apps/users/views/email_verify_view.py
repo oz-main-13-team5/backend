@@ -5,12 +5,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
+from rest_framework.renderers import JSONRenderer
+
 from apps.users.models.user_auth_email import UserAuthEmail
 from apps.users.serializers.auth import EmailSendSerializer, EmailVerifySerializer
 from apps.users.services.email_service import EmailService
 
 #code email 발송
 class EmailSendView(APIView):
+    renderer_classes = [JSONRenderer]
 
     def post(self, request):
         serializer = EmailSendSerializer(data=request.data)
@@ -37,6 +40,9 @@ class EmailSendView(APIView):
 
 #code검증
 class EmailVerifyView(APIView):
+
+    renderer_classes = [JSONRenderer]
+
     def post(self, request):
         serializer = EmailVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

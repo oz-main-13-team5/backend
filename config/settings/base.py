@@ -1,6 +1,8 @@
 import os
+import datetime
 from pathlib import Path
 from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -23,20 +25,6 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = [
-    'django.contrib.admin',          # admin
-    'django.contrib.auth',           # 사용자 인증
-    'django.contrib.contenttypes',   # 모델 타입 관련
-    'django.contrib.sessions',       # 세션
-    'django.contrib.messages',       # 메시지 프레임워크
-    'django.contrib.staticfiles',    # static 파일 처리
-
-    # 프로젝트 앱
-    'apps.users',
-    #'apps.pills',
-    #'apps.me',
-]
-
 AUTH_USER_MODEL = 'users.User'
 # 개발용 임시
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -52,11 +40,34 @@ EMAIL_HOST_PASSWORD = '앱 비밀번호 또는 SMTP 비번'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 """
 
+INSTALLED_APPS = [
+    'django.contrib.admin',          # admin
+    'django.contrib.auth',           # 사용자 인증
+    'django.contrib.contenttypes',   # 모델 타입 관련
+    'django.contrib.sessions',       # 세션
+    'django.contrib.messages',       # 메시지 프레임워크
+    'django.contrib.staticfiles',    # static 파일 처리
+
+    # 프로젝트 앱
+    'apps.users',
+    #'apps.pills',
+    #'apps.me',
+]
+
+#third party app
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
+
+#JWT토큰발급,갱신,폐기
+JWT_ALGORITHM = "HS256"
+JWT_ACCESS_TOKEN_LIFETIME = datetime.timedelta(minutes=15)# 액세스 토큰 유효기간
+JWT_REFRESH_TOKEN_LIFETIME = datetime.timedelta(days=7)# 리프레시 토큰 유효기간
+JWT_AUTH_HEADER = "Authorization"
+JWT_PREFIX = "Bearer"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
