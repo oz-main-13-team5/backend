@@ -1,4 +1,5 @@
 from .base import *
+# base 오버라이딩하여 진행
 
 DEBUG = False
 ALLOWED_HOSTS = ["myapp.com", "localhost"]
