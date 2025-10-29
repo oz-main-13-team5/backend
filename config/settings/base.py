@@ -10,9 +10,9 @@ ENV = os.getenv("ENV", "local")
 
 # 환경별 .env 파일 로드
 if ENV == "prod":
-    env_path = BASE_DIR / ".env.prod"
+    env_path = BASE_DIR / "./envs/.env.prod"
 else:
-    env_path = BASE_DIR / ".env.dev"
+    env_path = BASE_DIR / "./envs/.env.dev"
 
 print(f"✅ Loading environment: {ENV} ({env_path.name})")
 
@@ -20,7 +20,7 @@ load_dotenv(dotenv_path=env_path)
 
 # 예시 환경 변수
 SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 DATABASES = {
