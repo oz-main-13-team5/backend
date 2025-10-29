@@ -5,7 +5,7 @@ __pycache__/
 .git
 .gitignore
 
-envs/.env.local
+envs/.env.dev
 envs/.env.prod
 .venv
 

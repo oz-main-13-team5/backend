@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 # 환경 선택: dev(default) / prod
 env = os.getenv("DJANGO_ENV", "dev")
 
-# .env.local 파일 로드
+# .env.dev 파일 로드
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 dotenv_path = BASE_DIR / f".env.{env}"
 load_dotenv(dotenv_path)

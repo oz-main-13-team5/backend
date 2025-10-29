@@ -22,7 +22,7 @@ services:
     build: .
     command: /app/scripts/run.sh
     env_file:
-      - envs/.env.local
+      - envs/.env.dev
     environment:
       DB_HOST: db
       DB_PORT: 5432

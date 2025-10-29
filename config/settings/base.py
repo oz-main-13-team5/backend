@@ -12,7 +12,7 @@ ENV = os.getenv("ENV", "local")
 if ENV == "prod":
     env_path = BASE_DIR / ".env.prod"
 else:
-    env_path = BASE_DIR / ".env.local"
+    env_path = BASE_DIR / ".env.dev"
 
 print(f"✅ Loading environment: {ENV} ({env_path.name})")
 
