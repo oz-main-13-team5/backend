@@ -32,7 +32,31 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',    # static 파일 처리
 
     # 프로젝트 앱
+    'apps.users',
+    #'apps.pills',
+    #'apps.me',
 ]
+
+AUTH_USER_MODEL = 'users.User'
+# 개발용 임시
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@example.com'
+"""
+#실 운영용
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your@gmail.com'
+EMAIL_HOST_PASSWORD = '앱 비밀번호 또는 SMTP 비번'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+"""
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
