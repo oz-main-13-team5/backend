@@ -1,9 +1,9 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:14-alpine
     restart: always
-    env_file:
-      - ${ENV_FILE:-envs/env.local}
     environment:
       POSTGRES_DB: ${DB_NAME:-backend}
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -13,21 +13,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-backend}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-backend}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   web:
     build: .
-    command: /app/scripts/run.sh
-    env_file:
-      - envs/.env.dev
     environment:
       DB_HOST: db
       DB_PORT: 5432
-    ports:
-      - "8000:8000"
     depends_on:
       db:
         condition: service_healthy

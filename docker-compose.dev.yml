@@ -1,0 +1,9 @@
+version: "3.9"
+
+services:
+  web:
+    command: python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - envs/.env.dev
+    ports:
+      - "8001:8000"  # 개발용 포트
