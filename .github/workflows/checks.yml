@@ -17,7 +17,6 @@ jobs:
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
-          DJANGO_SETTINGS_MODULE: config.settings.dev  # 환경 설정 (dev/prod) 명시
         ports:
           - 5432:5432
         options: >-
@@ -33,6 +32,7 @@ jobs:
       POSTGRES_DB: ${{ secrets.DB_NAME }}
       POSTGRES_USER: ${{ secrets.DB_USER }}
       POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DJANGO_SETTINGS_MODULE: config.settings.dev
 
     steps:
       - name: Checkout code
@@ -94,4 +94,4 @@ jobs:
       - name: Run Django Tests
         run: |
           unset DATABASE_URL
-          uv run python manage.py test --settings=backend.settings.dev
+          uv run python manage.py test --settings=config.settings.dev
