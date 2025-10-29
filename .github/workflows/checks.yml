@@ -82,7 +82,7 @@ jobs:
           fi
 
           echo "Postgres not ready in time"
-          echo "DBG: HOST=127.0.0.1 PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
+          echo "DBG: HOST=postgres PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
           exit 1
 
       - name: Run ruff (Linting)
