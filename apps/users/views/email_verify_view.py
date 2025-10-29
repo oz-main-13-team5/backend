@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from apps.users import UserAuthEmail
-from apps.users import EmailSendSerializer, EmailVerifySerializer
-from apps.users import EmailService
+from apps.users.models.user_auth_email import UserAuthEmail
+from apps.users.serializers.auth import EmailSendSerializer, EmailVerifySerializer
+from apps.users.services.email_service import EmailService
 
 #code email 발송
 class EmailSendView(APIView):
