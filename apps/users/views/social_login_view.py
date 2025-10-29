@@ -10,7 +10,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-
+# 로그인 URL생성
 class GoogleLoginView(APIView):
     def get(self, request):
         google_auth_url = (
@@ -22,14 +22,14 @@ class GoogleLoginView(APIView):
         )
         return JsonResponse({"auth_url": google_auth_url})
 
-
+# OAuth2 인증. 로그인 후 코드를 발급.
 class GoogleCallbackView(APIView):
     def get(self, request):
         code = request.GET.get("code")
         if not code:
             return JsonResponse({"error": "Missing code"}, status=400)
 
-        # 1. Access Token 요청
+        # 1. 코드로 구글에 Access Token을 요청
         token_data = {
             "code": code,
             "client_id": settings.GOOGLE_CLIENT_ID,
@@ -45,13 +45,14 @@ class GoogleCallbackView(APIView):
         if not access_token:
             return JsonResponse({"error": "Failed to get access token"}, status=400)
 
-        # 2. UserInfo 요청
+        # 2. Access Token으로 UserInfo 조회
         userinfo_res = requests.get(
             settings.GOOGLE_USERINFO_URL,
             headers={"Authorization": f"Bearer {access_token}"},
         )
         userinfo = userinfo_res.json()
 
+        #구글에서 받아온 정보를 변수에 저장. sub는 구글 사용자 고유ID
         provider_account_id = userinfo.get("sub")
         email = userinfo.get("email")
         profile = userinfo.get("picture")
@@ -72,7 +73,7 @@ class GoogleCallbackView(APIView):
                 },
             )
 
-            # Provider 계정 생성
+            # 없으면 Provider 계정 생성
             UserAuthProviderAccounts.objects.get_or_create(
                 user=user,
                 provider="google",
@@ -83,7 +84,7 @@ class GoogleCallbackView(APIView):
                 },
             )
 
-        # ✅ 4. JWT 발급
+        # 4. JWT 발급
         jwt_token = JWTService.generate_token_pair(user)
 
         return JsonResponse(
