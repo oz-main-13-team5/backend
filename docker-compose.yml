@@ -3,7 +3,7 @@ services:
     image: postgres:14-alpine
     restart: always
     env_file:
-      - ${ENV_FILE:-.env.local}
+      - ${ENV_FILE:-envs/env.local}
     environment:
       POSTGRES_DB: ${DB_NAME:-backend}
       POSTGRES_USER: ${DB_USER:-postgres}
@@ -22,7 +22,7 @@ services:
     build: .
     command: /app/scripts/run.sh
     env_file:
-      - .env.local
+      - envs/.env.local
     environment:
       DB_HOST: db
       DB_PORT: 5432
