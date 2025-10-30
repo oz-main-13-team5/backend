@@ -14,6 +14,8 @@ jobs:
       postgres:
         image: postgres:14
         env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.postgres.ports['5432'] }}
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
@@ -45,32 +47,24 @@ jobs:
       - name: Wait for Postgres (robust)
         timeout-minutes: 3
         env:
+          PGHOST: 127.0.0.1
+          PGPORT: ${{ job.services.postgres.ports['5432'] }}
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
         run: |
           set -euo pipefail
           unset DATABASE_URL
-
-          if command -v pg_isready >/dev/null 2>&1; then
-            echo "Using pg_isready..."
-            for i in {1..45}; do  # 최대 ~90초
-              if pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
-                echo "Postgres is ready."
-                exit 0
-              fi
-              sleep 2
-            done
-          else
-            echo "pg_isready not found; falling back to TCP probe..."
-            for i in {1..45}; do
-              (echo > /dev/tcp/postgres/5432) >/dev/null 2>&1 && { echo "TCP port open."; exit 0; }
-              sleep 2
-            done
-          fi
-
+          echo "Using pg_isready..."
+          for i in {1..90}; do
+            if pg_isready -h "$PGHOST" -p "$PGPORT" -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+              echo "Postgres is ready on $PGHOST:$PGPORT"
+              exit 0
+            fi
+            sleep 1
+          done
           echo "Postgres not ready in time"
-          echo "DBG: HOST=postgres PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
+          echo "DBG: HOST=$PGHOST PORT=$PGPORT USER=$POSTGRES_USER DB=$POSTGRES_DB"
           exit 1
 
       # ... existing code ...
