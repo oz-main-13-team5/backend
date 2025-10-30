@@ -11,20 +11,6 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    
-    env:
-      DB_ENGINE: django.db.backends.postgresql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: test_db
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      SECRET_KEY: dummy-secret-for-ci-only
-      POSTGRES_DB: test_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DJANGO_SETTINGS_MODULE: config.settings.dev
-      ENV: dev
 
     services:
       postgres:
@@ -33,6 +19,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost"
           --health-interval=2s
