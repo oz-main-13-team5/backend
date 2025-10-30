@@ -23,14 +23,14 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DJANGO_SETTINGS_MODULE: config.settings.dev
       ENV: dev
-      
+
     services:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: $DB_USER
-          POSTGRES_PASSWORD: $DB_PASSWORD
-          POSTGRES_DB: $DB_NAME
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
         options: >-
           --health-cmd="pg_isready -U $DB_USER -d $DB_NAME "
           --health-interval=2s
@@ -58,8 +58,8 @@ jobs:
       - name: Wait for Postgres (robust)
         timeout-minutes: 3
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: backend
+          POSTGRES_USER: ${{ secrets.DB_USER }}
+          POSTGRES_DB: ${{ secrets.DB_NAME }}
         run: |
           set -euo pipefail
           unset DATABASE_URL
