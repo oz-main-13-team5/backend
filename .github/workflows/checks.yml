@@ -11,24 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: $DB_USER
-          POSTGRES_PASSWORD: $DB_PASSWORD
-          POSTGRES_DB: $DB_NAME
-        options: >-
-          --health-cmd="pg_isready -U $DB_USER -d $DB_NAME "
-          --health-interval=2s
-          --health-timeout=5s
-          --health-retries=30
-
-    env:
       DB_ENGINE: django.db.backends.postgresql
       DB_HOST: postgres
       DB_PORT: 5432
@@ -41,6 +23,19 @@ jobs:
       POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
       DJANGO_SETTINGS_MODULE: config.settings.dev
       ENV: dev
+      
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: $DB_USER
+          POSTGRES_PASSWORD: $DB_PASSWORD
+          POSTGRES_DB: $DB_NAME
+        options: >-
+          --health-cmd="pg_isready -U $DB_USER -d $DB_NAME "
+          --health-interval=2s
+          --health-timeout=5s
+          --health-retries=30
 
     steps:
       - name: Checkout code
