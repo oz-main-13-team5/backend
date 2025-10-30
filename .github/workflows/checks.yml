@@ -3,7 +3,7 @@ name: Code Quality Checks
 on:
   push:
     branches:
-      - main
+      - dev/settings
   pull_request:
 
 jobs:
@@ -12,8 +12,7 @@ jobs:
     
     env:
       DB_ENGINE: django.db.backends.postgresql
-      DB_HOST: postgres
-      DB_PORT: 5432
+      DB_HOST: 127.0.0.1
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
@@ -31,6 +30,8 @@ jobs:
           POSTGRES_USER: ${{ secrets.DB_USER }}
           POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U $DB_USER -d $DB_NAME "
           --health-interval=2s
@@ -67,7 +68,7 @@ jobs:
           if command -v pg_isready >/dev/null 2>&1; then
             echo "Using pg_isready..."
             for i in {1..45}; do  # 최대 ~90초
-              if pg_isready -h postgres -p 5432 -U "$DB_USER" -d "$DB_NAME" >/dev/null 2>&1; then
+              if pg_isready -h "$DB_HOST" -p 5432 -U "$DB_USER" -d "$DB_NAME" >/dev/null 2>&1; then
                 echo "Postgres is ready."
                 exit 0
               fi
@@ -82,7 +83,7 @@ jobs:
           fi
 
           echo "Postgres not ready in time"
-          echo "DBG: HOST=postgres PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
+          echo "DBG: HOST=${DB_HOST} PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
           exit 1
 
       - name: Run ruff (Linting)
