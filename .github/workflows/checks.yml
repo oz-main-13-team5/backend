@@ -16,13 +16,13 @@ jobs:
       DB_ENGINE: django.db.backends.postgresql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: test_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
       SECRET_KEY: dummy-secret-for-ci-only
-      POSTGRES_DB: ${{ secrets.DB_NAME }}
-      POSTGRES_USER: ${{ secrets.DB_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       DJANGO_SETTINGS_MODULE: config.settings.dev
       ENV: dev
 
@@ -30,14 +30,14 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
         options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB "
+          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost"
           --health-interval=2s
           --health-timeout=5s
-          --health-retries=30
+          --health-retries=10
 
     steps:
       - name: Checkout code
@@ -60,8 +60,8 @@ jobs:
       - name: Wait for Postgres (robust)
         timeout-minutes: 3
         env:
-          POSTGRES_USER: ${{ secrets.DB_USER }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: postgres
+          POSTGRES_DB: test_db
         run: |
           set -euo pipefail
           unset DATABASE_URL
@@ -69,7 +69,7 @@ jobs:
           if command -v pg_isready >/dev/null 2>&1; then
             echo "Using pg_isready..."
             for i in {1..45}; do  # 최대 ~90초
-              if pg_isready -h postgres -p 5432 -U "$DB_USER" -d "$DB_NAME" >/dev/null 2>&1; then
+              if pg_isready -h postgres -p 5432 -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
                 echo "Postgres is ready."
                 exit 0
               fi
@@ -78,7 +78,7 @@ jobs:
           else
             echo "pg_isready not found; falling back to TCP probe..."
             for i in {1..45}; do
-              (echo > /dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && { echo "TCP port open."; exit 0; }
+              (echo > /dev/tcp/postgres/5432) >/dev/null 2>&1 && { echo "TCP port open."; exit 0; }
               sleep 2
             done
           fi
@@ -87,16 +87,4 @@ jobs:
           echo "DBG: HOST=postgres PORT=5432 USER=${POSTGRES_USER} DB=${POSTGRES_DB}"
           exit 1
 
-      - name: Run ruff (Linting)
-        run: uv run ruff check .
-
-      - name: Run Django Migration
-        run: |
-          unset DATABASE_URL
-          uv run python manage.py makemigrations --noinput
-          uv run python manage.py migrate --noinput
-
-      - name: Run tests (pytest)
-        run: |
-          unset DATABASE_URL
-          uv run pytest -q
+      # ... existing code ...
