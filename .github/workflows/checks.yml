@@ -3,8 +3,10 @@ name: Code Quality Checks
 on:
   push:
     branches:
-      - main
+      - feat/ci-test
   pull_request:
+    branches:
+      - feat/ci-test
 
 jobs:
   ci:
