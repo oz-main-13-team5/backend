@@ -19,13 +19,12 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
-        ports:
-          - 5432:5432
         options: >-
-          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h localhost"
+          --health-cmd="pg_isready -U $POSTGRES_USER -d $POSTGRES_DB -h 127.0.0.1"
           --health-interval=2s
           --health-timeout=5s
           --health-retries=10
+          --health-start-period=10s
 
     steps:
       - name: Checkout code
