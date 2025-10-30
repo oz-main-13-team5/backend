@@ -14,11 +14,11 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: oz_password
-          POSTGRES_DB: backend
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
         options: >-
-          --health-cmd="pg_isready -U postgres -d backend"
+          --health-cmd="pg_isready -U ${{ env.DB_USER }} -d ${{ env.DB_NAME }}"
           --health-interval=2s
           --health-timeout=5s
           --health-retries=30
@@ -91,8 +91,8 @@ jobs:
       - name: Run Django Migration
         run: |
           unset DATABASE_URL
-          uv run python manage.py makemigrations --noinput --settings=config.settings.dev # dev/prod
-          uv run python manage.py migrate --noinput --settings=config.settings.dev # dev/prod
+          uv run python manage.py makemigrations --noinput
+          uv run python manage.py migrate --noinput
 
       - name: Run tests (pytest)
         run: |
