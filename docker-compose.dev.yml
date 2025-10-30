@@ -1,9 +1,43 @@
-version: "3.9"
-
 services:
   web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV: dev
+    container_name: backend-web-dev
     command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/app
     env_file:
       - envs/.env.dev
+    environment:
+      ENV: dev
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:14
+    container_name: backend-db-dev
+    env_file:
+      - envs/.env.dev
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8001:8000"  # 개발용 포트
+      - "5433:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+
+volumes:
+  postgres_data_dev:

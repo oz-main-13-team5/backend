@@ -2,9 +2,6 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from dotenv import load_dotenv
-
-load_dotenv()  # .env.prod 파일 읽기 (os.environ.setdefault 환경변수)
 
 def main():
     """Run administrative tasks."""

@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 # 환경 선택: dev(default) / prod
-env = os.getenv("DJANGO_ENV", "dev")
+env = os.getenv("ENV", "dev")
 
 # .env.dev 파일 로드
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

@@ -1,12 +1,14 @@
 #!/bin/bash
-# Usage: ./scripts/docker-up.sh [local|prod]
-ENV=${1:-local}
+# Usage: ./scripts/docker-up.sh [dev|prod]
+ENV_TARGET=${1:-dev}
 
-if [ "$ENV" = "prod" ]; then
-  export ENV_FILE=".env.prod"
+if [ "$ENV_TARGET" = "prod" ]; then
+  export ENV_FILE="envs/.env.prod"
+  export ENV="prod"
 else
-  export ENV_FILE=".env.local"
+  export ENV_FILE="envs/.env.dev"
+  export ENV="dev"
 fi
 
-echo "🚀 Starting Docker with $ENV_FILE"
+echo "🚀 Starting Docker with $ENV_FILE (ENV=$ENV)"
 docker-compose up --build
