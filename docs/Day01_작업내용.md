@@ -1,0 +1,100 @@
+# Day 01 - 개발 1일차 작업 (10.31)
+
+## 🎯 오늘 한 작업
+
+### ✅ 완료한 작업
+
+1. **Bookmark 모델 생성** - 테이블 명세서에 맞춰 구현
+2. **Serializers 작성** - 조회/추가/삭제용 3개
+3. **Views 작성** - GET/POST/DELETE 메서드
+4. **URL 설정** - `/bookmark` 엔드포인트 연결
+5. **마이그레이션** - 데이터베이스 테이블 생성
+
+---
+
+## 📝 구현 내용
+
+### 1. Bookmark 모델 (`apps/bookmarks/models.py`)
+
+```python
+class Bookmark(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, db_column='user_id')
+    pill = models.ForeignKey('pills.PillItem', to_field='item_seq', db_column='item_seq')
+    
+    class Meta:
+        db_table = 'bookmark'
+        unique_together = ('user', 'item_seq')
+```
+
+**테이블 명세서 기준**:
+- `id`: INT, AUTO_INCREMENT (PK)
+- `user_id`: UUID, FK → users.id
+- `item_seq`: TEXT, FK → pill_items.item_seq
+
+### 2. Serializers (`apps/bookmarks/serializers.py`)
+
+- **BookmarkSerializer**: 북마크 조회용 (약품 정보 포함)
+- **BookmarkCreateSerializer**: 북마크 추가용 (`{"item_seq": "101"}`)
+- **BookmarkDeleteSerializer**: 북마크 삭제용 (`{"id": "1"}`)
+
+### 3. Views (`apps/bookmarks/views.py`)
+
+- **GET /bookmark**: 북마크 목록 조회 (페이지네이션)
+- **POST /bookmark**: 북마크 추가 (기본 로직)
+- **DELETE /bookmark**: 북마크 삭제
+
+**TODO (내일 구현)**:
+- 20개 제한 로직
+- 중복 체크 로직 개선
+
+### 4. URL 설정 (`apps/bookmarks/urls.py`)
+
+```python
+path('bookmark', BookmarkView.as_view())
+```
+
+---
+
+## 📊 생성된 파일
+
+```
+apps/bookmarks/
+├── __init__.py
+├── apps.py
+├── admin.py
+├── models.py
+├── serializers.py
+├── views.py
+├── urls.py
+├── tests.py
+└── README.md
+```
+
+
+---
+
+## ⚠️ 주의사항
+
+1. **PillItem 모델 확인 필요**
+   - `apps.pills.models.PillItem` 모델이 존재해야 함
+   - 모델명이 다르면 `models.py`의 ForeignKey 참조 수정 필요
+
+2. **settings.py에 앱 등록**
+   ```python
+   INSTALLED_APPS = [
+       'apps.bookmarks',
+   ]
+   ```
+
+3. **메인 urls.py에 연결**
+   ```python
+   path('', include('apps.bookmarks.urls')),
+   ```
+
+4. **마이그레이션 실행**
+   ```bash
+   python manage.py makemigrations bookmarks
+   python manage.py migrate
+   ```
+
