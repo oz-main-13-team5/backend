@@ -20,8 +20,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("social/google/login/", GoogleLoginView.as_view()),
     path("social/google/callback/", GoogleCallbackView.as_view()),
-    path("login/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("logout/", LogoutView.as_view(), name="logout"),
     path("social/kakao/login/", KakaoLoginView.as_view(), name="kakao-login"),
     path("social/kakao/callback/", KakaoCallbackView.as_view(), name="kakao-callback"),
 ]

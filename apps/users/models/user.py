@@ -19,7 +19,7 @@ class UserManager(BaseUserManager):
     # user모델을 커스텀 하기 위해 usermanager사용
 
     def get_queryset(self):
-        return ActiveUserQuerySet(self.model, using=self._db).active()
+        return super().get_queryset()
 
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -28,12 +28,13 @@ class UserManager(BaseUserManager):
 
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
-        user.is_active = True
+        user.is_active = False
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_active", True)
 
         return self.create_user(email, password, **extra_fields)
@@ -50,9 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     auth_email_id = models.IntegerField(null=True)  # 이메일 인증 테이블
 
     username = models.CharField(max_length=150)
-    password = models.TextField()
     nickname = models.CharField(max_length=20, null=True)
-    last_login = models.DateTimeField(default=timezone.now)
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_superuser = models.BooleanField(default=False)  # 관리자 계정

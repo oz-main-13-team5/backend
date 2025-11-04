@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.contrib.auth import authenticate
 from apps.users.services.jwt_service import JWTService
 
@@ -19,8 +20,9 @@ class LoginView(APIView):
         token_pair = JWTService.generate_token_pair(user)
 
         response = Response(
-            {"message": "Login Success", "access": token_pair["access"]}
+            {"message": "Login Success", "access": token_pair["access"]}, status=status.HTTP_200_OK
         )
+
         response.set_cookie(
             key="refresh_token",
             value=token_pair["refresh"],
