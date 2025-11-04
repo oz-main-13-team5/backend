@@ -9,7 +9,7 @@ def timecount_3_minutes():
 
 class UserAuthEmail(models.Model):
     email = models.EmailField(unique=True)  # 이메일 형식 자동 검증 및 중복방지
-    auth_code = models.CharField(max_length=6)  # 6자리 코드 저장
+    auth_code = models.CharField(min_length=8, max_length=8)  # 8자리 코드 저장
     is_verified = models.BooleanField(default=False)  # 인증 전 기본상태 False
     created_at = models.DateTimeField(default=now)  # 인증 요청 생성 시각
     verified_at = models.DateTimeField(null=True, blank=True)  # 인증 완료 시각

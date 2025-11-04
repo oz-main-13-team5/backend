@@ -10,4 +10,4 @@ class EmailSendSerializer(serializers.Serializer):
 # 이메일 유효성 검증
 class EmailVerifySerializer(serializers.Serializer):
     email = serializers.EmailField()
-    auth_code = serializers.CharField(max_length=6)
+    auth_code = serializers.CharField(min_length=8, max_length=8)
