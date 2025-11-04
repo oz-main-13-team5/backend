@@ -1,12 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
-from rest_framework.renderers import JSONRenderer
 from apps.users.services.jwt_service import JWTService
 
 
 class LoginView(APIView):
-    renderer_classes = [JSONRenderer]
 
     def post(self, request):
         email = request.data.get("email") or request.data.get("username")
@@ -20,7 +18,9 @@ class LoginView(APIView):
 
         token_pair = JWTService.generate_token_pair(user)
 
-        response = Response({"access": token_pair["access"]})
+        response = Response(
+            {"message": "Login Success", "access": token_pair["access"]}
+        )
         response.set_cookie(
             key="refresh_token",
             value=token_pair["refresh"],
