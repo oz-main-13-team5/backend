@@ -9,6 +9,7 @@ from apps.users.models.user_auth_email import UserAuthEmail
 from apps.users.serializers.auth import EmailSendSerializer, EmailVerifySerializer
 from apps.users.services.email_service import EmailService
 
+
 # code email 발송
 class EmailSendView(APIView):
 

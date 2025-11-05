@@ -20,7 +20,8 @@ class LoginView(APIView):
         token_pair = JWTService.generate_token_pair(user)
 
         response = Response(
-            {"message": "Login Success", "access": token_pair["access"]}, status=status.HTTP_200_OK
+            {"message": "Login Success", "access": token_pair["access"]},
+            status=status.HTTP_200_OK,
         )
 
         response.set_cookie(

@@ -63,11 +63,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",  # 세션
     "django.contrib.messages",  # 메시지 프레임워크
     "django.contrib.staticfiles",  # static 파일 처리
-    #DRF
+    # DRF
     "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
-    #'apps.pills',
+    "apps.pills",
     #'apps.me',
 ]
 

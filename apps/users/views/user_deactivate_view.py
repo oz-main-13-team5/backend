@@ -11,6 +11,4 @@ class UserDeactivateView(APIView):
         user = request.user
         user.soft_delete()
 
-        return Response(
-            {"회원 탈퇴가 완료되었습니다."}, status=status.HTTP_200_OK
-        )
+        return Response({"회원 탈퇴가 완료되었습니다."}, status=status.HTTP_200_OK)
