@@ -8,7 +8,7 @@ Request Body:
 {
   "email": "user@example.com",
   "username": "user@example.com",
-  "password": "securepassword"
+  "password": "securepassword1#"
 }
 
 
@@ -54,7 +54,7 @@ Request Body:
 
 {
   "email": "user@example.com",
-  "auth_code": "123456"
+  "auth_code": "12a3b456"
 }
 
 
@@ -72,7 +72,7 @@ Request Body:
 
 {
   "email": "user@example.com",
-  "password": "securepassword"
+  "password": "securepassword1#"
 }
 
 
