@@ -19,7 +19,7 @@ class EmailSendView(APIView):
 
         characters = string.ascii_lowercase + string.digits  # a-z + 0-9
         while True:
-            auth_code = "".join(random.choices(characters, k=8))
+            auth_code = "".join(random.choices(characters, k=6))
             if any(c.isalpha() for c in auth_code):  # 최소 한 글자 포함 확인
                 break
 
