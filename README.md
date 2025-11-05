@@ -1,30 +1,37 @@
 # 북마크 & 마이페이지 기능
 
-## 📋 프로젝트 개요
+## 프로젝트 개요
 
 의약품 정보 서비스의 북마크 및 마이페이지 기능 구현
 
-## 🗂️ 프로젝트 구조
+## 프로젝트 구조
 
 ```
 .
 ├── apps/
-│   └── bookmarks/
+│   ├── bookmarks/
+│   │   ├── __init__.py
+│   │   ├── admin.py
+│   │   ├── apps.py
+│   │   ├── models.py
+│   │   ├── serializers.py
+│   │   ├── tests.py
+│   │   ├── urls.py
+│   │   └── views.py
+│   └── mypage/
 │       ├── __init__.py
-│       ├── admin.py
 │       ├── apps.py
-│       ├── models.py
 │       ├── serializers.py
-│       ├── tests.py
 │       ├── urls.py
 │       └── views.py
 ├── docs/
-│   └── Day01_작업내용.md
+│   ├── Day01_작업내용.md
+│   └── Day02_작업내용.md
 ├── .gitignore
 └── README.md
 ```
 
-## 🚀 빠른 시작
+## 빠른 시작
 
 ### 1. 앱 등록 (settings.py)
 
@@ -60,6 +67,13 @@ python manage.py migrate
 - `GET /bookmark` - 북마크 목록 조회
 - `POST /bookmark` - 북마크 추가
 - `DELETE /bookmark` - 북마크 삭제
+  - 중복 등록 시 `409` 반환
+  - 20개 이상 등록 시 `201`과 함께 `success: false` 응답
+
+### 마이페이지
+
+- `GET /me` - 사용자 프로필 조회
+- `PATCH /me` - 닉네임/비밀번호 수정 (`updated_fields` 반환)
 
 ## ⚠️ 주의사항
 
@@ -78,4 +92,6 @@ python manage.py migrate
 ## 📚 참고 문서
 
 - `apps/bookmarks/README.md`: 앱별 구성과 사용법
+- `apps/mypage/`: 마이페이지 앱 구성
 - `docs/Day01_작업내용.md`: Day 1 작업 로그 (백엔드)
+- `docs/Day02_작업내용.md`: Day 2 작업 로그 (백엔드)

@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Bookmark
-# ⚠️ PillItem 모델 위치에 맞게 수정
 from apps.pills.models import PillItem
 
 class BookmarkSerializer(serializers.ModelSerializer):
@@ -13,6 +12,7 @@ class BookmarkSerializer(serializers.ModelSerializer):
     
     # 약품 정보 포함 (Nested Serializer)
     # pill_items 테이블의 정보를 포함하여 응답
+    item_seq = serializers.CharField(source='pill.item_seq', read_only=True)
     item_name = serializers.CharField(source='pill.item_name', read_only=True)
     entp_name = serializers.CharField(source='pill.entp_name', read_only=True)
     item_image_url = serializers.URLField(
@@ -61,4 +61,3 @@ class BookmarkDeleteSerializer(serializers.Serializer):
         if value <= 0:
             raise serializers.ValidationError("id는 양수여야 합니다.")
         return value
-

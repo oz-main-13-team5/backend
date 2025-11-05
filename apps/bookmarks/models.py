@@ -37,10 +37,15 @@ class Bookmark(models.Model):
         
         # 같은 사용자가 같은 약품을 중복 북마크하는 것 방지
         # 테이블 명세서에는 명시되지 않았지만, 논리적으로 필요
-        unique_together = ('user', 'item_seq')
+        unique_together = ('user', 'pill')
         
         # 최신순으로 정렬 (id가 AUTO_INCREMENT이므로 -id는 최신순)
         ordering = ['-id']
+    
+    @property
+    def item_seq(self):
+        """데이터베이스 컬럼명(item_seq)과 필드명(pill) 간의 호환을 위한 helper"""
+        return self.pill_id
     
     def __str__(self):
         """관리자 페이지에서 보기 좋게 표시"""
@@ -48,4 +53,3 @@ class Bookmark(models.Model):
             return f"{self.user.username} - {self.pill.item_name}"
         except:
             return f"{self.user.username} - {self.item_seq}"
-

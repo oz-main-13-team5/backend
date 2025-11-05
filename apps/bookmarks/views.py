@@ -62,18 +62,7 @@ class BookmarkView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        """
-        북마크 추가
-        
-        1. item_seq 받음
-        2. 약품 정보 조회 (pill_items 테이블)
-        3. 20개 제한 체크 (내일 구현)
-        4. 중복 체크 (내일 구현)
-        5. 북마크 추가
-        
-        TODO: 20개 제한 로직 구현 (내일)
-        TODO: 중복 체크 로직 개선 (내일)
-        """
+        """북마크 추가 (20개 제한 및 중복 방지 포함)"""
         # 입력 데이터 검증
         serializer = BookmarkCreateSerializer(data=request.data)
         
@@ -94,15 +83,27 @@ class BookmarkView(APIView):
                 "code": 404
             }, status=status.HTTP_404_NOT_FOUND)
         
-        # 북마크 생성 (get_or_create로 중복 체크)
-        bookmark, created = Bookmark.objects.get_or_create(
-            user=request.user,
-            item_seq=item_seq,
-            defaults={'pill': pill}
-        )
-        
-        # 현재 북마크 개수
+        # 현재 북마크 개수 (중복/제한 체크를 위해 선조회)
         current_count = Bookmark.objects.filter(user=request.user).count()
+        
+        # 20개 제한 체크
+        if current_count >= 20:
+            return Response({
+                "success": False,
+                "message": "북마크는 최대 20개까지만 저장할 수 있습니다.",
+                "current_count": current_count
+            }, status=status.HTTP_201_CREATED)  # 명세서 기준 201 유지
+        
+        # 중복 체크
+        if Bookmark.objects.filter(user=request.user, pill=pill).exists():
+            return Response({
+                "error": "이미 북마크에 추가된 약품입니다.",
+                "code": 409
+            }, status=status.HTTP_409_CONFLICT)
+        
+        # 북마크 생성
+        Bookmark.objects.create(user=request.user, pill=pill)
+        current_count += 1
         
         # 응답 (명세서 기준)
         return Response({
@@ -150,4 +151,3 @@ class BookmarkView(APIView):
             "message": "북마크에서 해당 약품이 삭제되었습니다.",
             "current_count": current_count
         }, status=status.HTTP_201_CREATED)  # 명세서 기준 201 반환
-
