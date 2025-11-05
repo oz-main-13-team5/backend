@@ -12,9 +12,9 @@ class PillSearchView(APIView):
     def get(self, request, keyword, page=1):
         page = int(page)
         query = (
-            Q(entp_name__icontains=keyword) |
-            Q(item_name__icontains=keyword) |
-            Q(efcy_qesitm__icontains=keyword)
+            Q(entp_name__icontains=keyword)
+            | Q(item_name__icontains=keyword)
+            | Q(efcy_qesitm__icontains=keyword)
         )
 
         pills = PillItem.objects.filter(query)
@@ -35,5 +35,5 @@ class PillSearchView(APIView):
                 "total": total,
                 "pills": serializer.data,
             },
-            status=200
+            status=200,
         )
