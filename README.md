@@ -24,9 +24,7 @@
 │       ├── serializers.py
 │       ├── urls.py
 │       └── views.py
-├── docs/
-│   ├── Day01_작업내용.md
-│   └── Day02_작업내용.md
+├── docs/                 # 로컬 작업 로그 (git 미추적)
 ├── .gitignore
 └── README.md
 ```
@@ -60,7 +58,7 @@ python manage.py makemigrations bookmarks
 python manage.py migrate
 ```
 
-## 📝 API 엔드포인트
+## API 엔드포인트
 
 ### 북마크
 
@@ -75,7 +73,7 @@ python manage.py migrate
 - `GET /me` - 사용자 프로필 조회
 - `PATCH /me` - 닉네임/비밀번호 수정 (`updated_fields` 반환)
 
-## ⚠️ 주의사항
+## 주의사항
 
 1. **PillItem 모델 확인 필요**
    - `apps.pills.models.PillItem` 모델이 존재해야 함
@@ -93,5 +91,4 @@ python manage.py migrate
 
 - `apps/bookmarks/README.md`: 앱별 구성과 사용법
 - `apps/mypage/`: 마이페이지 앱 구성
-- `docs/Day01_작업내용.md`: Day 1 작업 로그 (백엔드)
-- `docs/Day02_작업내용.md`: Day 2 작업 로그 (백엔드)
+- `docs/` 폴더: 작업 로그 (로컬에서만 관리, Git 미추적)
