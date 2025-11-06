@@ -1,7 +1,8 @@
 import os
-import datetime
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+from rest_framework.settings import api_settings
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -48,6 +49,12 @@ GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 GOOGLE_TOKEN_URL = os.getenv("GOOGLE_TOKEN_URL")
 GOOGLE_USERINFO_URL = os.getenv("GOOGLE_USERINFO_URL")
+# Kakao OAuth
+KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
+KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
+KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
+KAKAO_TOKEN_URL = os.getenv("KAKAO_TOKEN_URL")
+KAKAO_USERINFO_URL = os.getenv("KAKAO_USERINFO_URL")
 
 INSTALLED_APPS = [
     "django.contrib.admin",  # admin
@@ -56,26 +63,28 @@ INSTALLED_APPS = [
     "django.contrib.sessions",  # 세션
     "django.contrib.messages",  # 메시지 프레임워크
     "django.contrib.staticfiles",  # static 파일 처리
+    # DRF
+    "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
-    #'apps.pills',
+    "apps.pills",
     #'apps.me',
 ]
 
-# third party app
-
+# DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
 
-# JWT토큰발급,갱신,폐기
-JWT_ALGORITHM = "HS256"
-JWT_ACCESS_TOKEN_LIFETIME = datetime.timedelta(minutes=15)  # 액세스 토큰 유효기간
-JWT_REFRESH_TOKEN_LIFETIME = datetime.timedelta(days=7)  # 리프레시 토큰 유효기간
-JWT_AUTH_HEADER = "Authorization"
-JWT_PREFIX = "Bearer"
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

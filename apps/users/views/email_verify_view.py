@@ -1,11 +1,9 @@
-import random
+import random, string
 from datetime import timedelta
 from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-
-from rest_framework.renderers import JSONRenderer
 
 from apps.users.models.user_auth_email import UserAuthEmail
 from apps.users.serializers.auth import EmailSendSerializer, EmailVerifySerializer
@@ -14,14 +12,18 @@ from apps.users.services.email_service import EmailService
 
 # code email 발송
 class EmailSendView(APIView):
-    renderer_classes = [JSONRenderer]
 
     def post(self, request):
         serializer = EmailSendSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data["email"]
 
-        auth_code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        characters = string.ascii_lowercase + string.digits  # a-z + 0-9
+        while True:
+            auth_code = "".join(random.choices(characters, k=6))
+            if any(c.isalpha() for c in auth_code):  # 최소 한 글자 포함 확인
+                break
+
         expires_at = now() + timedelta(minutes=3)
 
         obj, created = UserAuthEmail.objects.update_or_create(
@@ -44,8 +46,6 @@ class EmailSendView(APIView):
 
 # code검증
 class EmailVerifyView(APIView):
-
-    renderer_classes = [JSONRenderer]
 
     def post(self, request):
         serializer = EmailVerifySerializer(data=request.data)
