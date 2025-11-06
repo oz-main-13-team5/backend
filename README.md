@@ -1,94 +1,77 @@
-# 북마크 & 마이페이지 기능
+# 북마크 & 마이페이지 백엔드
 
-## 프로젝트 개요
-
-의약품 정보 서비스의 북마크 및 마이페이지 기능 구현
+의약품 서비스에서 북마크, 마이페이지, 인증(Pill/Users) 기능을 담당하는 백엔드입니다.
 
 ## 프로젝트 구조
 
 ```
 .
 ├── apps/
-│   ├── bookmarks/
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py
-│   │   ├── serializers.py
-│   │   ├── tests.py
-│   │   ├── urls.py
-│   │   └── views.py
-│   └── mypage/
-│       ├── __init__.py
-│       ├── apps.py
-│       ├── serializers.py
-│       ├── urls.py
-│       └── views.py
-├── docs/                 # 로컬 작업 로그 (git 미추적)
-├── .gitignore
-└── README.md
+│   ├── bookmarks/        # 북마크 API
+│   ├── mypage/           # /me 프로필 API
+│   ├── pills/            # 의약품 데이터 API (feat/pills-api에서 병합)
+│   └── users/            # 회원가입/로그인/소셜 로그인 등 인증
+├── config/               # Django 설정 (base/dev/prod)
+├── docs/                 # 작업 로그 (로컬 관리)
+├── docker-compose.dev.yml
+├── manage.py
+└── pyproject.toml
 ```
 
 ## 빠른 시작
 
-### 1. 앱 등록 (settings.py)
-
-```python
-INSTALLED_APPS = [
-    # ... 기존 앱들 ...
-    'apps.bookmarks',
-]
-```
-
-### 2. URL 설정 (프로젝트 메인 urls.py)
-
-```python
-from django.urls import path, include
-
-urlpatterns = [
-    # ... 기존 URL들 ...
-    path('', include('apps.bookmarks.urls')),
-]
-```
-
-### 3. 마이그레이션
+1. 필요한 앱 활성화 (`config/settings/base.py` 참고)
+2. `docker-compose.dev.yml` 혹은 로컬 환경에서 DB 실행
+3. 데이터베이스 마이그레이션
 
 ```bash
-python manage.py makemigrations bookmarks
-python manage.py migrate
+poetry install          # 의존성 설치
+poetry run python manage.py migrate
+poetry run python manage.py runserver
 ```
 
-## API 엔드포인트
+## 주요 API
 
-### 북마크
+### 북마크 (`apps/bookmarks`)
 
-- `GET /bookmark` - 북마크 목록 조회
-- `POST /bookmark` - 북마크 추가
-- `DELETE /bookmark` - 북마크 삭제
-  - 중복 등록 시 `409` 반환
-  - 20개 이상 등록 시 `201`과 함께 `success: false` 응답
+- `GET /bookmark` : 로그인 사용자의 북마크 목록 (20개 페이지네이션)
+- `POST /bookmark` : 약품 북마크 추가  
+  - 이미 존재하면 `409`  
+  - 20개 초과 시 `201` with `success: false`
+- `DELETE /bookmark` : 북마크 삭제 (body에서 `id`)
 
-### 마이페이지
+### 마이페이지 (`apps/mypage`)
 
-- `GET /me` - 사용자 프로필 조회
-- `PATCH /me` - 닉네임/비밀번호 수정 (`updated_fields` 반환)
+- `GET /me` : 현재 로그인한 사용자의 프로필 조회
+- `PATCH /me` : 닉네임·비밀번호 수정 (`updated_fields` 배열 반환)
 
-## 주의사항
+### 인증 (`apps/users`)
 
-1. **PillItem 모델 확인 필요**
-   - `apps.pills.models.PillItem` 모델이 존재해야 함
-   - 모델명이 다르면 `apps/bookmarks/models.py`의 ForeignKey 참조 수정 필요
+1. **회원가입**
+   - `POST /users/signup/`
+   - 이메일 인증 흐름: `signup/send/` → `signup/verify/` → `signup/`
+2. **이메일 인증**
+   - `POST /users/signup/send/` : 인증번호 발송
+   - `POST /users/signup/verify/` : 인증번호 검증
+3. **일반 로그인**
+   - `POST /users/login/` → JWT Access Token 발급
+4. **소셜 로그인**
+   - `GET /users/social/<provider>/login/` : 각 플랫폼 인증 URL 반환
 
-2. **인증 필수**
-   - 모든 API는 로그인한 사용자만 접근 가능
-   - JWT 토큰 인증 필요
+### 의약품 (`apps/pills`)
 
-3. **테이블 명세서 준수**
-   - 테이블 구조는 테이블 명세서에 정의된 대로 구현됨
-   - 변경 시 팀원들과 협의 필요
+- 기본 목록, 상세, 검색 (`views/pill_list_view.py`, `pill_detail_view.py`, `pill_search_view.py`)
+- 북마크 기능과 테스트에서 `PillItem` 모델을 바로 사용 가능
 
-## 📚 참고 문서
+## 오늘(2차) 작업 요약
 
-- `apps/bookmarks/README.md`: 앱별 구성과 사용법
-- `apps/mypage/`: 마이페이지 앱 구성
-- `docs/` 폴더: 작업 로그 (로컬에서만 관리, Git 미추적)
+- 북마크 API에 20개 제한 + 중복 체크 추가
+- `/me` 조회/수정 시리얼라이저·뷰·URL 구성
+- 작업 로그를 `docs/1차_작업내용.md`, `docs/2차_작업내용.md`로 정리
+- `feat/pills-api` 브랜치 내용을 병합해 `PillItem` 모델과 인증/설정 파일 확보
+
+## 다음 단계
+
+1. `config/urls.py`와 메인 프로젝트에서 `/me`, 북마크, pills 라우트 확인
+2. `apps.pills.models.PillItem`을 이용한 북마크/마이페이지 테스트 작성
+3. Postman 등으로 명세서 응답 형식 검증 후 문서화 보완
