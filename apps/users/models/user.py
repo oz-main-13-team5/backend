@@ -29,7 +29,6 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.is_active = False
-        user.last_login = timezone.now()
         user.save(using=self._db)
         return user
 
