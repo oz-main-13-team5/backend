@@ -28,35 +28,49 @@ class UserProfileSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class UserProfileUpdateSerializer(serializers.Serializer):
-    """
-    마이페이지 수정용 Serializer
-
-    닉네임과 비밀번호 중 최소 하나는 전달되어야 하며,
-    각 필드는 명세서의 기본 정책을 따른다.
-    """
-
+class UserNicknameUpdateSerializer(serializers.Serializer):
     nickname = serializers.CharField(
-        required=False,
+        required=True,
         allow_blank=False,
         max_length=20,
     )
-    password = serializers.CharField(
-        required=False,
+
+    def validate_nickname(self, value):
+        user = self.context.get("request_user")
+        if (
+            value
+            and User.objects.exclude(pk=getattr(user, "pk", None))
+            .filter(nickname=value)
+            .exists()
+        ):
+            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
+        return value
+
+
+class UserPasswordUpdateSerializer(serializers.Serializer):
+    current_password = serializers.CharField(
+        required=True,
+        allow_blank=False,
+        write_only=True,
+    )
+    new_password = serializers.CharField(
+        required=True,
         allow_blank=False,
         min_length=8,
         write_only=True,
     )
 
     def validate(self, attrs):
-        """닉네임, 비밀번호 둘 다 비어있는 경우를 방지한다."""
-        if not attrs:
-            raise serializers.ValidationError("수정할 필드를 최소 1개 이상 입력해주세요.")
-        return attrs
-
-    def validate_nickname(self, value):
-        """닉네임 중복 여부를 확인한다."""
         user = self.context.get("request_user")
-        if value and User.objects.exclude(pk=getattr(user, "pk", None)).filter(nickname=value).exists():
-            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
-        return value
+        current = attrs.get("current_password")
+        new = attrs.get("new_password")
+
+        if not user.check_password(current):
+            raise serializers.ValidationError(
+                {"current_password": "현재 비밀번호가 올바르지 않습니다."}
+            )
+        if current == new:
+            raise serializers.ValidationError(
+                {"new_password": "현재 비밀번호와 다른 값으로 설정해주세요."}
+            )
+        return attrs

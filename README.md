@@ -43,7 +43,8 @@ poetry run python manage.py runserver
 ### 마이페이지 (`apps/mypage`)
 
 - `GET /me` : 현재 로그인한 사용자의 프로필 조회
-- `PATCH /me` : 닉네임·비밀번호 수정 (`updated_fields` 배열 반환)
+- `PATCH /me/nickname` : 닉네임 수정 (`{"nickname": "새닉"}`)
+- `PATCH /me/password` : 비밀번호 수정 (`{"current_password": "...", "new_password": "..."}`)
 
 ### 인증 (`apps/users`)
 

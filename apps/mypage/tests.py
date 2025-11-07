@@ -16,6 +16,8 @@ class UserProfileViewTests(APITestCase):
             nickname="테스터",
         )
         self.client.force_authenticate(user=self.user)
+        self.nickname_url = reverse("my-page-nickname")
+        self.password_url = reverse("my-page-password")
 
     def test_get_profile(self):
         response = self.client.get(reverse("my-page"))
@@ -24,12 +26,27 @@ class UserProfileViewTests(APITestCase):
         self.assertEqual(response.data["nickname"], self.user.nickname)
 
     def test_update_nickname(self):
-        response = self.client.patch(reverse("my-page"), {"nickname": "새닉네임"})
+        response = self.client.patch(self.nickname_url, {"nickname": "새닉네임"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data["success"])
-        self.assertIn("nickname", response.data["updated_fields"])
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.nickname, "새닉네임")
 
-    def test_update_password_requires_min_length(self):
-        response = self.client.patch(reverse("my-page"), {"password": "short"})
+    def test_update_password_success(self):
+        payload = {
+            "current_password": "StrongPass123!",
+            "new_password": "NewPass123!",
+        }
+        response = self.client.patch(self.password_url, payload)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["success"])
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.check_password("NewPass123!"))
+
+    def test_update_password_wrong_current(self):
+        payload = {
+            "current_password": "WrongPass!",
+            "new_password": "NewPass123!",
+        }
+        response = self.client.patch(self.password_url, payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
