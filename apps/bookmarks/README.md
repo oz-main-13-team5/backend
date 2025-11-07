@@ -31,7 +31,7 @@ apps/bookmarks/
 - 중복 북마크 시 `409` 응답
 
 ### 3. 북마크 삭제 (DELETE /bookmark)
-- 북마크에서 약품 제거
+- Body에 `{"item_seq": "P001"}`를 보내 북마크에서 해당 약품 제거
 
 ## 🔧 설정
 
@@ -88,4 +88,4 @@ python manage.py migrate
 
 ## 📚 참고 문서
 
-- 프로젝트 루트 `docs/Day01_작업내용.md`: Day 1 진행 로그
+- `docs/1차_작업내용.md`, `docs/2차_작업내용.md`, `docs/3차_작업내용.md`

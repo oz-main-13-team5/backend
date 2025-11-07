@@ -38,7 +38,7 @@ poetry run python manage.py runserver
 - `POST /bookmark` : 약품 북마크 추가  
   - 이미 존재하면 `409`  
   - 20개 초과 시 `201` with `success: false`
-- `DELETE /bookmark` : 북마크 삭제 (body에서 `id`)
+- `DELETE /bookmark` : 북마크 삭제 (body에서 `{"item_seq": "P001"}`)
 
 ### 마이페이지 (`apps/mypage`)
 

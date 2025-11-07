@@ -129,13 +129,13 @@ class BookmarkView(APIView):
                 "code": 400
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        bookmark_id = serializer.validated_data['id']
+        item_seq = serializer.validated_data['item_seq']
         
         # 본인의 북마크만 삭제 가능
         try:
             bookmark = Bookmark.objects.get(
-                id=bookmark_id, 
-                user=request.user  # 본인 것만 삭제 가능
+                user=request.user,
+                pill__item_seq=item_seq
             )
             bookmark.delete()
         except Bookmark.DoesNotExist:

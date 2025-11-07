@@ -50,14 +50,13 @@ class BookmarkCreateSerializer(serializers.Serializer):
 class BookmarkDeleteSerializer(serializers.Serializer):
     """
     북마크 삭제용 Serializer
-    
-    프론트엔드에서 {"id": "1"} 받음
-    API 명세서 기준
+
+    프론트엔드에서 {"item_seq": "P001"} 받음
     """
-    id = serializers.IntegerField(required=True)
-    
-    def validate_id(self, value):
-        """id 검증 (양수만 허용)"""
-        if value <= 0:
-            raise serializers.ValidationError("id는 양수여야 합니다.")
+
+    item_seq = serializers.CharField(required=True)
+
+    def validate_item_seq(self, value):
+        if not value or value.strip() == "":
+            raise serializers.ValidationError("item_seq는 필수입니다.")
         return value

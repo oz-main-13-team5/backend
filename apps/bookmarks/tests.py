@@ -112,11 +112,13 @@ class BookmarkViewTest(TestCase):
         self.assertFalse(response.data["success"])
         self.assertEqual(response.data["current_count"], 20)
 
-    def test_bookmark_delete(self):
-        bookmark = Bookmark.objects.create(user=self.user, pill=self.pill)
+    def test_bookmark_delete_by_item_seq(self):
+        Bookmark.objects.create(user=self.user, pill=self.pill)
         self.client.force_authenticate(user=self.user)
 
-        response = self.client.delete(self.url, {"id": bookmark.id}, format="json")
+        response = self.client.delete(
+            self.url, {"item_seq": self.pill.item_seq}, format="json"
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(response.data["success"])
