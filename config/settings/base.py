@@ -10,8 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env_file = os.getenv("ENV_FILE", ".env.dev")
 load_dotenv(BASE_DIR / env_file)
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-DEBUG = os.getenv("DEBUG") == "True"
+SECRET_KEY = os.getenv("SECRET_KEY", "dummy-secret-key")
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = []
 
@@ -25,6 +25,12 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
+
+if not DATABASES["default"]["NAME"]:
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
 
 # Email서비스
 AUTH_USER_MODEL = "users.User"
@@ -68,7 +74,8 @@ INSTALLED_APPS = [
     # 프로젝트 앱
     "apps.users",
     "apps.pills",
-    #'apps.me',
+    "apps.bookmarks",
+    "apps.mypage",
 ]
 
 # DRF

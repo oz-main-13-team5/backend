@@ -258,3 +258,8 @@ http-client.private.env.json
 .idea/ApifoxUploaderProjectSetting.xml
 
 # End of https://www.toptal.com/developers/gitignore/api/django
+
+# Project specific ignores
+.vscode/
+staticfiles/
+static_root/
