@@ -9,8 +9,23 @@ from apps.pills.serializers import PillListSerializer
 class PillSearchView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get(self, request, keyword, page=1):
+    def get(self, request):
+        keyword = request.query_params.get("keyword", "").strip()
+        page = request.query_params.get("page", "1")
+
+        if len(keyword) < 2:
+            return Response(
+                {"detail": "검색어는 최소 2글자 이상이어야 합니다."},
+                status=400,
+            )
+
+        if not page.isdigit() or int(page) < 1:
+            return Response(
+                {"detail": "잘못된 접근!"},
+                status=400,
+            )
         page = int(page)
+
         query = (
             Q(entp_name__icontains=keyword)
             | Q(item_name__icontains=keyword)
