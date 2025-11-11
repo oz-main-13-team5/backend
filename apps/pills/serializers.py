@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from apps.pills.models import PillItem
-from apps.bookmarks.models import Bookmark
+from apps.bookmarks.utils import is_marked_pill
 
 
 class PillListSerializer(serializers.ModelSerializer):
@@ -20,9 +20,9 @@ class PillListSerializer(serializers.ModelSerializer):
 
     def get_is_marked(self, obj):
         request = self.context.get("request")
-        if not request or not hasattr(request, "user") or not request.user.is_authenticated:
+        if not request:
             return False
-        return Bookmark.objects.filter(user=request.user, pill=obj).exists()
+        return is_marked_pill(request.user, obj)
 
 
 class PillDetailSerializer(serializers.ModelSerializer):
@@ -34,6 +34,6 @@ class PillDetailSerializer(serializers.ModelSerializer):
 
     def get_is_marked(self, obj):
         request = self.context.get("request")
-        if not request or not hasattr(request, "user") or not request.user.is_authenticated:
+        if not request:
             return False
-        return Bookmark.objects.filter(user=request.user, pill=obj).exists()
+        return is_marked_pill(request.user, obj)

@@ -5,10 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from .models import Bookmark
 from .serializers import (
-    BookmarkSerializer, 
-    BookmarkCreateSerializer, 
-    BookmarkDeleteSerializer
+    BookmarkSerializer,
+    BookmarkCreateSerializer,
+    BookmarkDeleteSerializer,
 )
+from .utils import user_bookmark_count, get_user_bookmark
 # ⚠️ PillItem 모델 위치에 맞게 수정
 from apps.pills.models import PillItem
 
@@ -84,7 +85,7 @@ class BookmarkView(APIView):
             }, status=status.HTTP_404_NOT_FOUND)
         
         # 현재 북마크 개수 (중복/제한 체크를 위해 선조회)
-        current_count = Bookmark.objects.filter(user=request.user).count()
+        current_count = user_bookmark_count(request.user)
         
         # 20개 제한 체크
         if current_count >= 20:
@@ -103,7 +104,7 @@ class BookmarkView(APIView):
         
         # 북마크 생성
         Bookmark.objects.create(user=request.user, pill=pill)
-        current_count += 1
+        current_count = user_bookmark_count(request.user)
         
         # 응답 (명세서 기준)
         return Response({
@@ -132,20 +133,16 @@ class BookmarkView(APIView):
         item_seq = serializer.validated_data['item_seq']
         
         # 본인의 북마크만 삭제 가능
-        try:
-            bookmark = Bookmark.objects.get(
-                user=request.user,
-                pill__item_seq=item_seq
-            )
-            bookmark.delete()
-        except Bookmark.DoesNotExist:
+        bookmark = get_user_bookmark(request.user, item_seq)
+        if bookmark is None:
             return Response({
                 "error": "요청한 북마크를 찾을 수 없습니다.",
                 "code": 404
             }, status=status.HTTP_404_NOT_FOUND)
+        bookmark.delete()
         
         # 삭제 후 남은 개수 반환
-        current_count = Bookmark.objects.filter(user=request.user).count()
+        current_count = user_bookmark_count(request.user)
         return Response({
             "success": True,
             "message": "북마크에서 해당 약품이 삭제되었습니다.",
