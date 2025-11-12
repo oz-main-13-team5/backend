@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     # 프로젝트 앱
     "apps.users",
     "apps.pills",
+    "apps.bookmarks",
     #'apps.me',
     "apps.my_requests",
 ]
