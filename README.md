@@ -1,212 +1,332 @@
-# Egomoyak Backend
+# 🔐 Authentication API Guide
 
-Django + DRF 기반의 Egomoyak 백엔드 API 서버입니다. 이메일 인증을 통한 회원가입, JWT 인증 로그인/로그아웃, 소셜 로그인(Google/Kakao), 사용자 탈퇴(소프트 삭제)와 알약 정보 조회/검색 API를 제공합니다.
+## 1️⃣ 회원가입 (Register)
 
-- Python 3.12+
-- Django 5.x, Django REST framework
-- Simple JWT
-- PostgreSQL
+**URL**  
+`POST /users/signup/`
 
+**Request Body**
+```json
+{
+  "email": "user@example.com",
+  "username": "user@example.com",
+  "password": "securepassword1#"
+}
+Flow
+# 북마크 & 마이페이지 백엔드
 
-## 목차
-- 프로젝트 구조
-- 빠른 시작(로컬 개발)
-- 환경 변수(.env) 설정
-- 실행 방법
-- API 개요 및 예시
-  - 인증/사용자 API
-  - 알약(Pills) API
-- 개발 가이드(코드 스타일/테스트)
-- 배포 힌트
-
+의약품 서비스에서 북마크, 마이페이지, 인증(Pill/Users) 기능을 담당하는 백엔드입니다.
 
 ## 프로젝트 구조
-루트 일부만 발췌
-- config: 장고 설정(base/dev/prod), URL
-- apps/users: 사용자 모델/시리얼라이저/서비스/뷰(회원가입, 로그인, 이메일 인증, 로그아웃, 탈퇴, 소셜 로그인, 토큰 리프레시)
-- apps/pills: PillItem 모델과 리스트/상세/검색 API
-- manage.py: 개발/운영 실행 헬퍼(run_dev, run_prod) 포함
-- pyproject.toml: Poetry 의존성
 
+```
+.
+├── apps/
+│   ├── bookmarks/        # 북마크 API
+│   ├── mypage/           # /me 프로필 API
+│   ├── pills/            # 의약품 데이터 API (feat/pills-api에서 병합)
+│   └── users/            # 회원가입/로그인/소셜 로그인 등 인증
+├── config/               # Django 설정 (base/dev/prod)
+├── docs/                 # 작업 로그 (로컬 관리)
+├── docker-compose.dev.yml
+├── manage.py
+└── pyproject.toml
+```
 
-## 빠른 시작(로컬 개발)
-사전 요구사항
-- Python 3.12+
-- PostgreSQL (DB/유저 생성 권한)
-- Poetry (권장)
+## 빠른 시작
 
-설치
-1) 의존성 설치
-- Poetry 사용 시:
-  - poetry install
-- pip 사용 시(선택):
-  - pip install -r requirements.txt (동봉돼 있지 않으므로 권장은 Poetry)
+1. 필요한 앱 활성화 (`config/settings/base.py` 참고)
+2. `docker-compose.dev.yml` 혹은 로컬 환경에서 DB 실행
+3. 데이터베이스 마이그레이션
 
-2) DB 준비(PostgreSQL)
-- DB 생성 및 접근 정보 준비(DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT)
+```bash
+poetry install          # 의존성 설치
+poetry run python manage.py migrate
+poetry run python manage.py runserver
+```
 
-3) 환경 파일 생성
-- 루트에 .env.dev 생성(아래 샘플 참조)
+## 주요 API
 
-4) 마이그레이션 & 슈퍼유저(선택)
-- python manage.py migrate
-- python manage.py createsuperuser
+### 북마크 (`apps/bookmarks`)
 
-5) 서버 실행
-- python manage.py runserver  또는  python manage.py run_dev
+이메일 인증 완료 후 signup/으로 회원가입 진행
 
-기본 설정은 개발 환경(config.settings.dev)을 사용합니다.
+Response 예시
 
+json
+- `GET /bookmark` : 로그인 사용자의 북마크 목록 (20개 페이지네이션)
+- `POST /bookmark` : 약품 북마크 추가  
+  - 이미 존재하면 `409`
+  - 20개 초과 시 `201` with `success: false`
+- `DELETE /bookmark` : 북마크 삭제 (body에서 `{"item_seq": "P001"}`)
 
-## 환경 변수(.env) 설정
-config/settings/base.py는 ENV_FILE 환경변수를 통해 .env.dev 등 파일을 로드합니다. 기본값은 .env.dev 입니다.
+### 마이페이지 (`apps/mypage`)
 
-샘플(.env.dev)
-- SECRET_KEY=장고_시크릿키
-- DEBUG=True
+- `GET /me` : 현재 로그인한 사용자의 프로필 조회
+- `PATCH /me/nickname` : 닉네임 수정 (`{"nickname": "새닉"}`)
+- `PATCH /me/password` : 비밀번호 수정 (`{"current_password": "...", "new_password": "..."}`)
 
-- DB_NAME=egomoyak
-- DB_USER=postgres
-- DB_PASSWORD=postgres
-- DB_HOST=127.0.0.1
-- DB_PORT=5432
+### 인증 (`apps/users`)
 
-이메일(개발 기본 콘솔 백엔드 사용)
-- 별도 설정 없이 콘솔로 전송 로그가 출력됩니다.
-- 실서버에서 SMTP를 사용하려면 base.py 주석 블록의 SMTP 설정을 활성화하고 관련 ENV를 구성하세요.
+#### 1️⃣ 회원가입 (Register)
+- URL: `POST /users/signup/`
+- Request Body:
 
-구글 OAuth
-- GOOGLE_CLIENT_ID=...
-- GOOGLE_CLIENT_SECRET=...
-- GOOGLE_REDIRECT_URI=http://localhost:8000/users/social/google/callback/
-- GOOGLE_TOKEN_URL=https://oauth2.googleapis.com/token
-- GOOGLE_USERINFO_URL=https://www.googleapis.com/oauth2/v2/userinfo
+```json
+{
+  "email": "user@example.com",
+  "username": "user@example.com",
+  "password": "securepassword1#"
+}
+2️⃣ 이메일 인증 (Email Verify)
+2-1. 인증 코드 발송
+URL POST /users/signup/send/
 
-카카오 OAuth
-- KAKAO_CLIENT_ID=...
-- KAKAO_CLIENT_SECRET=...
-- KAKAO_REDIRECT_URI=http://localhost:8000/users/social/kakao/callback/
-- KAKAO_TOKEN_URL=https://kauth.kakao.com/oauth/token
-- KAKAO_USERINFO_URL=https://kapi.kakao.com/v2/user/me
+Request Body
 
-기타
-- ENV_FILE=.env.dev (manage.py의 run_dev/run_prod에서 설정되며, 기본은 .env.dev)
+json
+```
 
+- Flow: `signup/send/` → 이메일 인증 코드 발송 → `signup/verify/` → 인증 코드 검증 → `signup/`으로 회원가입 완료
+- Response 예시:
 
-## 실행 방법
-개발 서버
-- python manage.py runserver
-- 또는 헬퍼: python manage.py run_dev
+```json
+{
+  "email": "user@example.com",
+  "username": "user@example.com",
+  "id": 1
+}
+Response 예시
 
-운영(예시)
-- python manage.py run_prod  (DJANGO_SETTINGS_MODULE은 별도 설정을 고려하세요)
+json
+{
+  "message": "인증번호가 발송 되었습니다."
+}
+2-2. 인증 코드 검증
+URL POST /users/signup/verify/
 
+Request Body
 
-## API 개요 및 예시
-Base URL: http://localhost:8000
+json
+```
 
-### 인증/사용자
-1) 이메일 인증 코드 발송
-- POST /users/signup/send/
-- Body
-  - { "email": "user@example.com" }
-- Response
-  - { "message": "인증번호가 발송 되었습니다." }
+#### 2️⃣ 이메일 인증 (Email Verify)
 
-2) 이메일 인증 코드 검증
-- POST /users/signup/verify/
-- Body
-  - { "email": "user@example.com", "auth_code": "a1b2c3" }
-- Response
-  - { "verified": true }
+**2-1. 인증 코드 발송**
 
-3) 회원가입
-- POST /users/signup/
-- Body
-  - { "email": "user@example.com", "username": "user@example.com", "password": "Secure1#pass" }
-- 비밀번호 정책: 영문/숫자/특수문자 각각 최소 1자 포함, 길이 8~64자
-- Response
-  - { "email": "user@example.com", "username": "user@example.com", "id": "UUID" }
-  - 가입 전 이메일 인증이 완료되어야 합니다.
+- URL: `POST /users/signup/send/`
+- Request Body:
 
-4) 로그인(JWT)
-- POST /users/login/
-- Body
-  - { "email": "user@example.com", "password": "Secure1#pass" }
-- Response
-  - { "message": "Login Success", "access": "<JWT_ACCESS>" }
-  - refresh_token은 httpOnly 쿠키로 설정됩니다.
+```json
+{ "email": "user@example.com" }
+```
 
-5) 토큰 리프레시(SimpleJWT 기본 뷰)
-- POST /users/login/token/refresh/
-- Body
-  - { "refresh": "<JWT_REFRESH>" }
-- Response
-  - { "access": "<NEW_ACCESS>" }
+- Response:
 
-6) 로그아웃
-- POST /users/logout/
-- Header
-  - Authorization: Bearer <ACCESS>
-- Body
-  - { "refresh_token": "<JWT_REFRESH>" }
-- Response
-  - { "message": "Logout successful" }
+```json
+{ "message": "인증번호가 발송 되었습니다." }
+```
 
-7) 회원 탈퇴(소프트 삭제)
-- DELETE /users/signout/
-- Header
-  - Authorization: Bearer <ACCESS>
-- Response
-  - { "회원 탈퇴가 완료되었습니다." }
+**2-2. 인증 코드 검증**
 
-8) 소셜 로그인
-- GET /users/social/google/login/ → auth_url 반환
-- GET /users/social/google/callback/?code=...
-- GET /users/social/kakao/login/ → auth_url 반환
-- GET /users/social/kakao/callback/?code=...
-- 콜백 응답 예시
-  - { "message": "Google Login Success", "access_token": "<JWT_ACCESS>", "refresh_token": "<JWT_REFRESH>", "email": "user@gmail.com" }
+- URL: `POST /users/signup/verify/`
+- Request Body:
 
-주의
-- 소셜 로그인 시 기존 유저가 없으면 생성됩니다.
+```json
+{
+  "email": "user@example.com",
+  "auth_code": "12a3b456"
+}
+Response 예시
 
+json
+{
+  "verified": true
+}
+3️⃣ 일반 로그인 (Login)
+URL POST /users/login/
 
-### 알약(Pills)
-공통: 인증 없어도 조회 가능(IsAuthenticatedOrReadOnly)
+Request Body
 
-1) 리스트 페이지네이션
-- GET /pills/page/{page}/
-- Response 예시
-  - { "page": 1, "limit": 20, "total": 123, "pills": [ ... ] }
+json
+```
 
-2) 상세
-- GET /pills/{item_seq}/
-- Response 예시: PillDetailSerializer 형태
+- Response:
 
-3) 검색 + 페이지네이션
-- GET /pills/search/{keyword}/page/{page}/
-- Response 예시
-  - { "keyword": "감기", "page": 1, "total": 5, "pills": [ ... ] }
+```json
+{ "verified": true }
+```
 
+#### 3️⃣ 일반 로그인 (Login)
 
-## cURL 예시
-- 로그인
-  - curl -X POST http://localhost:8000/users/login/ -H "Content-Type: application/json" -d '{"email":"user@example.com","password":"Secure1#pass"}'
-- 탈퇴
-  - curl -X DELETE http://localhost:8000/users/signout/ -H "Authorization: Bearer <ACCESS>"
-- 알약 검색
-  - curl http://localhost:8000/pills/search/%EA%B0%90%EA%B8%B0/page/1/
+- URL: `POST /users/login/`
+- Request Body:
 
+```json
+{
+  "email": "user@example.com",
+  "password": "securepassword1#"
+}
+Response 예시
 
-## 개발 가이드
-- 포매팅: black, flake8 (pyproject.toml dev 그룹)
-- 테스트: pytest/pytest-django 사용 가능
-  - pytest
-- 커밋 전 마이그레이션 상태 확인: python manage.py makemigrations --check
+json
+```
 
+- Response:
 
-## 배포 힌트
-- settings/prod.py 사용 시 DJANGO_SETTINGS_MODULE=config.settings.prod 구성
-- ALLOWED_HOSTS, DEBUG, SECRET_KEY, DB, SMTP, OAuth 등 환경 변수 필수 구성
-- gunicorn, psycopg2-binary는 prod 그룹 의존성에 포함
+```json
+{
+  "message": "Login successful",
+  "access": "access_token_string"
+}
+Notes
+
+JWT Access Token 반환
+
+필요 시 Refresh Token은 쿠키로 저장 가능
+
+4️⃣ 소셜 로그인 (Google / Kakao)
+4-1. 로그인 URL 조회
+Google Login: GET /users/social/google/login/
+
+Kakao Login: GET /users/social/kakao/login/
+
+Response 예시
+
+json
+{
+  "auth_url": "https://accounts.google.com/o/oauth2/auth..."
+}
+4-2. 콜백 (Callback)
+Google Callback: GET /users/social/google/callback/?code=...
+```
+
+- Notes
+  - JWT Access Token 반환
+  - 필요 시 Refresh Token은 쿠키에 저장 가능
+
+#### 4️⃣ 소셜 로그인 (Google / Kakao)
+
+**4-1. 인증 URL 조회**
+
+- `GET /users/social/google/login/`
+- `GET /users/social/kakao/login/`
+- Response:
+
+```json
+{ "auth_url": "https://accounts.google.com/o/oauth2/auth..." }
+```
+
+**4-2. 콜백 (Callback)**
+
+Response 예시
+
+json
+- Google: `GET /users/social/google/callback/?code=...`
+- Kakao: `GET /users/social/kakao/callback/?code=...`
+- Response:
+
+```json
+{
+  "message": "Google Login Success",
+  "access_token": "jwt_access_token",
+  "refresh_token": "jwt_refresh_token",
+  "email": "user@gmail.com"
+}
+Notes
+```
+
+- Notes
+  - 소셜 로그인 시 기존 유저가 없으면 자동 생성
+  - Kakao는 닉네임/프로필 이미지만 받아와도 동작
+
+#### 5️⃣ 로그아웃 (Logout)
+
+- URL: `POST /users/logout/`
+- Request Body:
+
+```json
+{ "refresh_token": "사용자의 refresh token" }
+```
+
+5️⃣ 로그아웃 (Logout)
+URL POST /users/logout/
+
+Request Body
+
+json
+{
+  "refresh_token": "사용자의 refresh token"
+}
+Response 예시
+
+json
+{
+  "message": "Logout successful"
+}
+6️⃣ 회원 탈퇴 (User Deactivate)
+URL DELETE /users/signout/
+
+Permissions
+
+로그인 필요
+
+Response 예시
+
+json
+{
+  "회원 탈퇴가 완료되었습니다."
+}
+Notes
+
+소프트 삭제 처리 (soft_delete)
+
+DB에서 완전히 삭제되지 않고 비활성화 상태
+---
+
+# My Requests API
+
+## 개요
+로그인한 사용자가 자신이 요청한 이미지 검색 내역을 확인할 수 있는 API입니다.  
+- 신청했던 이미지 URL과 처리 상태(`status`)를 최신순으로 10개씩 페이지네이션(`records` 배열)으로 반환합니다.  
+- 처리 상태(`status`)는 처리중(`pending`), 완료됨(`completed`), 실패함(`completed_failed`)입니다.
+- 처리 결과가 성공(`completed`)일 경우, 매핑 기능을 통해 특정 약품의 `item_seq` 값으로 변환되어 출력됩니다.
+##프론트 처리 요청
+- `item_seq`를 이용해 **pills 앱의 상세 API**(`/pills/<item_seq>/`)로 이동할 수 있습니다.  
+- 매핑표에 없는 값은 `"결과 없음"`으로 처리됩니다.
+- Response:
+
+```json
+{ "message": "Logout successful" }
+```
+
+#### 6️⃣ 회원 탈퇴 (User Deactivate)
+
+- URL: `DELETE /users/signout/`
+- 권한: 로그인 필요
+- Response:
+
+```json
+{ "회원 탈퇴가 완료되었습니다." }
+```
+
+- Notes
+  - 소프트 삭제 처리 → DB에서는 비활성화 상태로 유지
+
+### 의약품 (`apps/pills`)
+
+- 기본 목록, 상세, 검색 (`views/pill_list_view.py`, `pill_detail_view.py`, `pill_search_view.py`)
+- 북마크 기능과 테스트에서 `PillItem` 모델을 바로 사용 가능
+
+## 오늘(2차) 작업 요약
+
+- 북마크 API에 20개 제한 + 중복 체크 추가
+- `/me` 조회/수정 시리얼라이저·뷰·URL 구성
+- 작업 로그를 `docs/1차_작업내용.md`, `docs/2차_작업내용.md`로 정리
+- `feat/pills-api` 브랜치 내용을 병합해 `PillItem` 모델과 인증/설정 파일 확보
+
+## 다음 단계
+
+1. `config/urls.py`와 메인 프로젝트에서 `/me`, 북마크, pills 라우트 확인
+2. `apps.pills.models.PillItem`을 이용한 북마크/마이페이지 테스트 작성
+3. Postman 등으로 명세서 응답 형식 검증 후 문서화 보완
