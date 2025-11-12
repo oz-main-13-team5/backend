@@ -56,6 +56,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     is_superuser = models.BooleanField(default=False)  # 관리자 계정
     is_active = models.BooleanField(default=True)  # 소프트 삭제를 위한 활성화 필드
+    is_staff = models.BooleanField(default=False)  # admin 접근 여부
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
