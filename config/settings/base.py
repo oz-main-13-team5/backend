@@ -28,19 +28,12 @@ DATABASES = {
 
 # Email서비스
 AUTH_USER_MODEL = "users.User"
-# 개발용 임시
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@example.com"
-"""
-#실 운영용
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+# sendgrid
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # .env에서 불러오기
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your@gmail.com'
-EMAIL_HOST_PASSWORD = '앱 비밀번호 또는 SMTP 비번'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-"""
 
 # 소셜로그인 서비스
 # Google OAuth Credentials
