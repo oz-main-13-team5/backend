@@ -1,5 +1,6 @@
-import uuid
+import secrets
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import BinaryIO, Optional
 
 import boto3
@@ -45,7 +46,14 @@ class S3Uploader:
     def _build_key(self, filename: str) -> str:
         sanitized_prefix = self.prefix.strip("/")
         prefix = f"{sanitized_prefix}/" if sanitized_prefix else ""
-        return f"{prefix}{uuid.uuid4()}-{filename}"
+        unique_part = self._generate_unique_id()
+        return f"{prefix}{unique_part}-{filename}"
+
+    def _generate_unique_id(self) -> str:
+        """숫자형(정수 문자열)으로 된 고유 값을 생성한다."""
+        epoch_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+        random_suffix = secrets.randbelow(1_000_000)
+        return f"{epoch_ms}{random_suffix:06d}"
 
     def _build_url(self, key: str) -> str:
         base_url = getattr(settings, "AWS_S3_UPLOAD_BASE_URL", None)
