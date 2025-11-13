@@ -56,6 +56,10 @@ KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 KAKAO_TOKEN_URL = os.getenv("KAKAO_TOKEN_URL")
 KAKAO_USERINFO_URL = os.getenv("KAKAO_USERINFO_URL")
 
+# 공공데이터 URL
+MFDS_BASE_URL = "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+MFDS_API_KEY = os.getenv("MFDS_API_KEY")
+
 INSTALLED_APPS = [
     "django.contrib.admin",  # admin
     "django.contrib.auth",  # 사용자 인증
@@ -68,13 +72,18 @@ INSTALLED_APPS = [
     # 프로젝트 앱
     "apps.users",
     "apps.pills",
+    "apps.bookmarks",
     #'apps.me',
+    "apps.my_requests",
 ]
 
 # DRF
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
     ),
 }
 
