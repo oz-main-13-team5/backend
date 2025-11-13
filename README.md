@@ -32,6 +32,8 @@ poetry run python manage.py runserver
 
 ## 주요 API
 
+아래 나열된 엔드포인트들은 기본적으로 JWT 인증을 바탕으로 동작합니다.
+
 ### 북마크 (`apps/bookmarks`)
 
 - `GET /bookmark` : 로그인 사용자의 북마크 목록 (20개 페이지네이션)
