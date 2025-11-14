@@ -1,16 +1,14 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-
 from apps.users.models.user import User
 from apps.users.models.user_auth_email import UserAuthEmail
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ["email", "username", "password"]
+        fields = ["email", "nickname", "password"]
 
     def validate_email(self, value):
         try:
@@ -24,14 +22,3 @@ class RegisterSerializer(serializers.ModelSerializer):
     def validate_password(self, value):
         validate_password(value)
         return value
-
-    def create(self, validated_data):
-        email = validated_data["email"]
-        auth = UserAuthEmail.objects.get(email=email)
-        user = User.objects.create_user(
-            email=email,
-            username=validated_data.get("username", email),
-            password=validated_data["password"],
-            auth_email_id=auth.id,
-        )
-        return user

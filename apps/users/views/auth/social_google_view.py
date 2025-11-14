@@ -86,5 +86,6 @@ class GoogleCallbackView(APIView):
                 "access_token": jwt_tokens["access"],
                 "refresh_token": jwt_tokens["refresh"],
                 "email": user.email,
-            }
+            },
+            status=status.HTTP_200_OK,
         )

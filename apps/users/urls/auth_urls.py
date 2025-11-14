@@ -8,19 +8,13 @@ from apps.users.views.auth.social_google_view import GoogleLoginView, GoogleCall
 from apps.users.views.auth.social_kakao_view import KakaoLoginView, KakaoCallbackView
 
 urlpatterns = [
-    path("email-send", EmailSendView.as_view(), name="auth-email-send"),
-    path("email-verify", EmailVerifyView.as_view(), name="auth-email-verify"),
-    path("login", LoginView.as_view(), name="auth-login"),
-    path("logout", LogoutView.as_view(), name="auth-logout"),
-    path("token/refresh", TokenRefreshView.as_view(), name="auth-token-refresh"),
-    path("social/google/login", GoogleLoginView.as_view(), name="auth-google-login"),
-    path(
-        "social/google/callback",
-        GoogleCallbackView.as_view(),
-        name="auth-google-callback",
-    ),
-    path("social/kakao/login", KakaoLoginView.as_view(), name="auth-kakao-login"),
-    path(
-        "social/kakao/callback", KakaoCallbackView.as_view(), name="auth-kakao-callback"
-    ),
+    path("email_send", EmailSendView.as_view(), name="auth_email_send"),
+    path("email_verify", EmailVerifyView.as_view(), name="auth_email_verify"),
+    path("login", LoginView.as_view(), name="auth_login"),
+    path("logout", LogoutView.as_view(), name="auth_logout"),
+    path("token/refresh", TokenRefreshView.as_view(), name="auth_token_refresh"),
+    path("social/google/login", GoogleLoginView.as_view(), name="auth_google_login"),
+    path("social/google/callback", GoogleCallbackView.as_view(), name="auth_google_callback"),
+    path("social/kakao/login", KakaoLoginView.as_view(), name="auth_kakao_login"),
+    path("social/kakao/callback", KakaoCallbackView.as_view(), name="auth_kakao_callback"),
 ]

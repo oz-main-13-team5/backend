@@ -42,7 +42,7 @@ class EmailSendView(APIView):
         EmailService.send_verification_email(email, auth_code)
 
         return Response(
-            {"message": "인증번호가 발송 되었습니다."}, status=status.HTTP_200_OK
+            {"detail": "인증번호가 발송 되었습니다."}, status=status.HTTP_200_OK
         )
 
 
