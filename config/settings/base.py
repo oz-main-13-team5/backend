@@ -34,7 +34,7 @@ EMAIL_HOST_USER = "apikey"
 EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")  # .env에서 불러오기
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = os.getenv("WELCOME_EMAIL_SENDER")
+DEFAULT_FROM_EMAIL = os.getenv('WELCOME_EMAIL_SENDER')
 
 # 소셜로그인 서비스
 # Google OAuth Credentials
