@@ -12,5 +12,5 @@ export ENV_FILE="envs/.env.prod"
 
 # 워커 수 3 - 임의 지정상태
 exec gunicorn config.wsgi:application \
-  --bind 0.0.0.0:8000 \
+  --bind 127.0.0.1:8000 \
   --workers 3
