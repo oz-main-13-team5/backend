@@ -22,7 +22,10 @@ class PillListSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request:
             return False
-        return is_marked_pill(getattr(request, "user", None), obj)
+        marked_ids = is_marked_pill(
+            getattr(request, "user", None), PillItem.objects.filter(pk=obj.pk)
+        )
+        return obj.item_seq in marked_ids
 
 class PillSearchSerializer(serializers.ModelSerializer):
     is_marked = serializers.SerializerMethodField()
@@ -46,4 +49,7 @@ class PillDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request:
             return False
-        return is_marked_pill(getattr(request, "user", None), obj)
+        marked_ids = is_marked_pill(
+            getattr(request, "user", None), PillItem.objects.filter(pk=obj.pk)
+        )
+        return obj.item_seq in marked_ids
