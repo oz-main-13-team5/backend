@@ -5,6 +5,6 @@ from apps.pills.views.pill_search_view import PillSearchView
 
 urlpatterns = [
     path('search/', PillSearchView.as_view(), name='pill-search'),
-    path("page/<int:page>/", PillListView.as_view(), name="pill-list"),
+    path('', PillListView.as_view(), name='pill-list'),
     path("<str:item_seq>/", PillDetailView.as_view(), name="pill-detail"),
 ]

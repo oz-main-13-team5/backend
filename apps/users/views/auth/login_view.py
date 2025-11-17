@@ -1,29 +1,30 @@
+from django.contrib.auth import authenticate
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
+from rest_framework.permissions import AllowAny
+
 from apps.users.services.jwt_service import JWTService
 
 
 class LoginView(APIView):
-
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get("email") or request.data.get("username")
         password = request.data.get("password")
-
         user = authenticate(username=email, password=password)
+
         if not user:
             return Response(
-                {"error": "이메일 또는 비밀번호를 확인해주세요."}, status=400
+                {"error": "이메일 또는 비밀번호를 확인해주세요."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         token_pair = JWTService.generate_token_pair(user)
-
         response = Response(
-            {"message": "Login Success", "access": token_pair["access"]},
+            {"detail": "Login Success", "access": token_pair["access"]},
             status=status.HTTP_200_OK,
         )
-
         response.set_cookie(
             key="refresh_token",
             value=token_pair["refresh"],

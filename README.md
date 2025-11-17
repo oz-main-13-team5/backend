@@ -1,3 +1,18 @@
+# Authentication API Guide
+
+## 1️⃣ 회원가입 (Register)
+
+**URL**  
+`POST /users/signup/`
+
+**Request Body**
+```json
+{
+  "email": "user@example.com",
+  "username": "user@example.com",
+  "password": "securepassword1#"
+}
+Flow
 # 북마크 & 마이페이지 백엔드
 
 의약품 서비스에서 북마크, 마이페이지, 인증(Pill/Users) 기능을 담당하는 백엔드입니다.
@@ -28,6 +43,8 @@
 poetry install          # 의존성 설치
 poetry run python manage.py migrate
 poetry run python manage.py runserver
+# API 문서 확인: http://localhost:8000/swagger/
+# SwaggerHub 문서: https://app.swaggerhub.com/apis/xxx-326/team5-backend-api/1.0.0
 ```
 
 ## 주요 API

@@ -28,36 +28,48 @@ DATABASES = {
 
 # Email서비스
 AUTH_USER_MODEL = "users.User"
-# 개발용 임시
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-DEFAULT_FROM_EMAIL = "no-reply@example.com"
-"""
-#실 운영용
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+# sendgrid
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")  # .env에서 불러오기
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your@gmail.com'
-EMAIL_HOST_PASSWORD = '앱 비밀번호 또는 SMTP 비번'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-"""
+DEFAULT_FROM_EMAIL = os.getenv('WELCOME_EMAIL_SENDER')
 
 # 소셜로그인 서비스
 # Google OAuth Credentials
+GOOGLE_AUTH_URL = os.getenv("GOOGLE_AUTH_URL")
+GOOGLE_AUTH_RESPONSE_TYPE = "code"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 GOOGLE_TOKEN_URL = os.getenv("GOOGLE_TOKEN_URL")
 GOOGLE_USERINFO_URL = os.getenv("GOOGLE_USERINFO_URL")
 # Kakao OAuth
+KAKAO_AUTH_URL = os.getenv("KAKAO_AUTH_URL")
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
 KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 KAKAO_TOKEN_URL = os.getenv("KAKAO_TOKEN_URL")
 KAKAO_USERINFO_URL = os.getenv("KAKAO_USERINFO_URL")
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "apps.users.validators.CustomPasswordValidator"},
+]
+
 # 공공데이터 URL
-MFDS_BASE_URL = "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+MFDS_BASE_URL = (
+    "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+)
 MFDS_API_KEY = os.getenv("MFDS_API_KEY")
 
 INSTALLED_APPS = [
@@ -85,6 +97,13 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Team5 Backend API",
+    "DESCRIPTION": "북마크, 마이페이지, 이미지 업로드 등 주요 엔드포인트 문서",
+    "VERSION": "1.0.0",
 }
 
 SIMPLE_JWT = {
