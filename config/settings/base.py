@@ -79,13 +79,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",  # 세션
     "django.contrib.messages",  # 메시지 프레임워크
     "django.contrib.staticfiles",  # static 파일 처리
+    "corsheaders",
     # DRF
     "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
     "apps.pills",
     "apps.bookmarks",
-    #'apps.me',
+    #'apps.me'
     "apps.my_requests",
 ]
 
@@ -115,6 +116,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
