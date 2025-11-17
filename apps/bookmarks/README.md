@@ -1,10 +1,10 @@
 # 북마크 (Bookmarks) 앱
 
-## 📋 개요
+## 개요
 
 사용자가 즐겨찾기로 등록한 약품 정보를 관리하는 앱입니다.
 
-## 🗂️ 파일 구조
+## 파일 구조
 
 ```
 apps/bookmarks/
@@ -18,7 +18,7 @@ apps/bookmarks/
 └── README.md
 ```
 
-## 📝 주요 기능
+## 주요 기능
 
 ### 1. 북마크 조회 (GET /bookmark)
 - 현재 로그인한 사용자의 북마크 목록 조회
@@ -33,13 +33,14 @@ apps/bookmarks/
 ### 3. 북마크 삭제 (DELETE /bookmark)
 - Body에 `{"item_seq": "P001"}`를 보내 북마크에서 해당 약품 제거
 
-## 🔧 설정
+Swagger에서 엔드포인트 확인: `http://localhost:8000/swagger/` 또는 `https://app.swaggerhub.com/apis/xxx-326/team5-backend-api/1.0.0`에서 Bookmark 섹션 참고
+
+## 설정
 
 ### settings.py에 앱 등록
 
 ```python
 INSTALLED_APPS = [
-    # ... 기존 앱들 ...
     'apps.bookmarks',
 ]
 ```
@@ -50,12 +51,11 @@ INSTALLED_APPS = [
 from django.urls import path, include
 
 urlpatterns = [
-    # ... 기존 URL들 ...
     path('', include('apps.bookmarks.urls')),
 ]
 ```
 
-## 🗄️ 데이터베이스
+## 데이터베이스
 
 ### 마이그레이션
 
@@ -72,7 +72,7 @@ python manage.py migrate
   - `user_id`: UUID (FK → users.id)
   - `item_seq`: TEXT (FK → pill_items.item_seq)
 
-## ⚠️ 주의사항
+## 주의사항
 
 1. **PillItem 모델 확인 필요**
    - `apps.pills.models.PillItem` 모델이 존재해야 함
@@ -81,11 +81,3 @@ python manage.py migrate
 2. **인증 필수**
    - 모든 API는 로그인한 사용자만 접근 가능
    - JWT 토큰 인증 필요
-
-3. **테이블 명세서 준수**
-   - 테이블 구조는 테이블 명세서에 정의된 대로 구현됨
-   - 변경 시 팀원들과 협의 필요
-
-## 📚 참고 문서
-
-- `docs/1차_작업내용.md`, `docs/2차_작업내용.md`, `docs/3차_작업내용.md`

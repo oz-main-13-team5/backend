@@ -1,4 +1,4 @@
-# 🔐 Authentication API Guide
+# Authentication API Guide
 
 ## 1️⃣ 회원가입 (Register)
 
@@ -43,6 +43,8 @@ Flow
 poetry install          # 의존성 설치
 poetry run python manage.py migrate
 poetry run python manage.py runserver
+# API 문서 확인: http://localhost:8000/swagger/
+# SwaggerHub 문서: https://app.swaggerhub.com/apis/xxx-326/team5-backend-api/1.0.0
 ```
 
 ## 주요 API
