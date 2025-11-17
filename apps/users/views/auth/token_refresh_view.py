@@ -13,27 +13,32 @@ class TokenRefreshView(APIView):
     def post(self, request):
         refresh = request.data.get("refresh")
         if not refresh:
-            return Response({"detail": "Refresh token missing"}, status=400)
+            return Response(
+                {"detail": "Refresh token missing"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         hashed_refresh = hashlib.sha256(refresh.encode()).hexdigest()
-
         try:
             stored_rt = RefreshToken.objects.get(token_hash=hashed_refresh)
         except RefreshToken.DoesNotExist:
-            return Response({"detail": "Invalid Refresh Token"}, status=401)
+            return Response(
+                {"detail": "Invalid Refresh Token"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         if stored_rt.is_blacklisted:
-            return Response({"detail": "Token is blacklisted"}, status=401)
+            return Response(
+                {"detail": "Token is blacklisted"}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         try:
-            JWTRefreshToken(refresh)  # 유효성 검사
+            JWTRefreshToken(refresh)
         except Exception:
             stored_rt.blacklist()
             return Response(
-                {"detail": "잘못된 접근입니다. 다시 로그인 해주세요."}, status=401
+                {"detail": "잘못된 접근입니다. 다시 로그인 해주세요."},
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         new_token_pair = JWTService.generate_token_pair(stored_rt.user)
         stored_rt.blacklist()
-
-        return Response(new_token_pair, status=200)
+        return Response(new_token_pair, status=status.HTTP_200_OK)

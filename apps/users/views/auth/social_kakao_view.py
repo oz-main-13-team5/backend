@@ -14,7 +14,7 @@ class KakaoLoginView(APIView):
 
     def get(self, request):
         kakao_auth_url = (
-            "https://kauth.kakao.com/oauth/authorize"
+            f"{settings.KAKAO_AUTH_URL}"
             f"?client_id={settings.KAKAO_CLIENT_ID}"
             f"&redirect_uri={settings.KAKAO_REDIRECT_URI}"
             "&response_type=code"
@@ -27,14 +27,12 @@ class KakaoCallbackView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        print("✅ DEBUG:", settings.KAKAO_TOKEN_URL, settings.KAKAO_USERINFO_URL)
-
         code = request.GET.get("code")
 
         if not code:
             return Response({"error": "Missing code"}, status=400)
 
-        # 1️⃣ 토큰 요청
+        # 토큰 요청
         token_res = requests.post(
             settings.KAKAO_TOKEN_URL,
             data={
@@ -54,14 +52,14 @@ class KakaoCallbackView(APIView):
         if not access_token:
             return Response({"error": "No access_token"}, status=400)
 
-        # 2️⃣ 카카오 유저 정보 조회
+        # 카카오 유저 정보 조회
         userinfo_res = requests.get(
             settings.KAKAO_USERINFO_URL,
             headers={"Authorization": f"Bearer {access_token}"},
         )
         userinfo = userinfo_res.json()
 
-        # ✅ 카카오 유저 정보 조회 결과 처리
+        # 카카오 유저 정보 조회 결과 처리
         kakao_id = userinfo.get("id")
         if not kakao_id:
             return Response(
@@ -70,39 +68,28 @@ class KakaoCallbackView(APIView):
 
         kakao_account = userinfo.get("kakao_account", {})
         profile = kakao_account.get("profile", {})
-
-        nickname = profile.get("nickname", f"kakao_user_{kakao_id}")
+        nickname = profile.get("profile_nickname")
         profile_image = profile.get("profile_image_url")
 
-        # ✅ 이메일 없이 로그인 가능하도록
-        email = f"kakao_{kakao_id}@example.com"
-
-        # 3️⃣ User 및 ProviderAccount 처리
-        nickname = profile.get("nickname", f"kakao_user_{kakao_id}")
-        profile_image = profile.get("profile_image_url")
-
-        email = f"kakao_{kakao_id}@example.com"
-
-        # ✅ username을 nickname + '@' + email 로 설정
-        username = f"{nickname}"
+        # 이메일 없이 로그인 가능하도록 처리로직
+        email = f"{nickname}@example.com"
+        # username을 nickname + '@' + email 로 설정
         user, _ = User.objects.get_or_create(
             email=email,
             defaults={
-                "username": username,
+                "username": email,
                 "is_active": True,
             },
         )
 
-        UserAuthProviderAccounts.objects.get_or_create(
+        UserAuthProviderAccounts.objects.update_or_create(
             user=user,
             provider="kakao",
             provider_user_id=kakao_id,
             defaults={"email": email, "profile_image_url": profile_image},
         )
 
-        # 4️⃣ JWT 발급
         tokens = JWTService.generate_token_pair(user)
-
         return Response(
             {
                 "message": "Kakao Login Success",

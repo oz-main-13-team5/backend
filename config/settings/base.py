@@ -29,29 +29,47 @@ DATABASES = {
 # Email서비스
 AUTH_USER_MODEL = "users.User"
 # sendgrid
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # .env에서 불러오기
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")  # .env에서 불러오기
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.getenv('WELCOME_EMAIL_SENDER')
 
 # 소셜로그인 서비스
 # Google OAuth Credentials
+GOOGLE_AUTH_URL = os.getenv("GOOGLE_AUTH_URL")
+GOOGLE_AUTH_RESPONSE_TYPE = "code"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 GOOGLE_TOKEN_URL = os.getenv("GOOGLE_TOKEN_URL")
 GOOGLE_USERINFO_URL = os.getenv("GOOGLE_USERINFO_URL")
 # Kakao OAuth
+KAKAO_AUTH_URL = os.getenv("KAKAO_AUTH_URL")
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
 KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 KAKAO_TOKEN_URL = os.getenv("KAKAO_TOKEN_URL")
 KAKAO_USERINFO_URL = os.getenv("KAKAO_USERINFO_URL")
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "apps.users.validators.CustomPasswordValidator"},
+]
+
 # 공공데이터 URL
-MFDS_BASE_URL = "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+MFDS_BASE_URL = (
+    "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+)
 MFDS_API_KEY = os.getenv("MFDS_API_KEY")
 
 INSTALLED_APPS = [
