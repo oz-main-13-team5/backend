@@ -117,11 +117,18 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+SPECTACULAR_SERVER_URL = os.getenv("SPECTACULAR_SERVER_URL")
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Team5 Backend API",
     "DESCRIPTION": "북마크, 마이페이지, 이미지 업로드 등 주요 엔드포인트 문서",
     "VERSION": "1.0.0",
 }
+
+if SPECTACULAR_SERVER_URL:
+    SPECTACULAR_SETTINGS["SERVERS"] = [
+        {"url": SPECTACULAR_SERVER_URL, "description": "Production"}
+    ]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),

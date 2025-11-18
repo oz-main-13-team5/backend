@@ -16,7 +16,7 @@ User = get_user_model()
 
 class UserProfileView(APIView):
     """
-    /me 엔드포인트를 담당하는 View (조회 전용)
+    /mypage/ 엔드포인트를 담당하는 View (조회 전용)
     """
 
     permission_classes = [IsAuthenticated]

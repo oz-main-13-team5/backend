@@ -47,6 +47,11 @@ poetry run python manage.py runserver
 # SwaggerHub 문서: https://app.swaggerhub.com/apis/xxx-326/team5-backend-api/1.0.0
 ```
 
+## 환경 변수 설정
+
+- 기본적으로 `ENV_FILE` 환경 변수를 통해 불러올 `.env` 파일을 지정합니다. 값을 지정하지 않으면 `.env.dev`를 시도하고, 해당 파일이 없다면 루트의 `.env`를 자동으로 로드합니다.
+- 이미지 업로드를 사용하려면 최소한 `AWS_S3_UPLOAD_BUCKET`과 해당 크리덴셜을 `.env`에 설정해야 합니다.
+
 ## 주요 API
 
 아래 나열된 엔드포인트들은 기본적으로 JWT 인증을 바탕으로 동작합니다.
