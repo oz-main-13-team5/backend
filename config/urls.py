@@ -24,7 +24,6 @@ urlpatterns = [
     path("user/", include("apps.users.urls.user_urls")),
     path("auth/", include("apps.users.urls.auth_urls")),
     path("pills/", include("apps.pills.urls")),
-    path("my_requests/", include("apps.pills.urls")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "swagger/",

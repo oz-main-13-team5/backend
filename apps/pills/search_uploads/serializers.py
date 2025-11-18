@@ -1,14 +1,11 @@
 from rest_framework import serializers
-
-from apps.uploads.models import UploadRequest
-
+from apps.pills.search_uploads.models import UploadRequest
 
 class UploadRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadRequest
-        fields = ["id", "filename", "url", "status", "created_at", "completed_at"]
+        fields = ["id", "filename", "url", "status", "created_at", "completed_at", "item_seq"]
         read_only_fields = fields
-
 
 class UploadRequestCreateSerializer(serializers.Serializer):
     file = serializers.FileField()

@@ -25,4 +25,4 @@ ITEM_SEQ_MAP = {
 }
 #DB저장값을 아이템 시퀸스로 치환
 def map_to_item_seq(db_value: str) -> str:
-    return ITEM_SEQ_MAP.get(db_value)
+    return ITEM_SEQ_MAP.get(db_value, "")

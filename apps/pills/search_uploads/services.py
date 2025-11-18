@@ -7,12 +7,10 @@ import boto3
 from botocore.client import Config
 from django.conf import settings
 
-
 @dataclass
 class S3UploadResult:
     url: str
     key: str
-
 
 class S3Uploader:
     """환경 변수 설정을 기반으로 파일을 S3에 업로드한다."""
@@ -23,7 +21,7 @@ class S3Uploader:
             raise RuntimeError("AWS_S3_UPLOAD_BUCKET 설정이 필요합니다.")
         self.bucket_name = bucket
         self.region = getattr(settings, "AWS_S3_UPLOAD_REGION", None)
-        self.prefix = getattr(settings, "AWS_S3_UPLOAD_PREFIX", "uploads")
+        self.prefix = getattr(settings, "AWS_S3_UPLOAD_PREFIX", "search_uploads")
         self.acl = getattr(settings, "AWS_S3_UPLOAD_ACL", "private")
         session = boto3.session.Session(
             aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None),
