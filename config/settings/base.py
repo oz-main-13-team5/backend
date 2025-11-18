@@ -12,6 +12,7 @@ load_dotenv(BASE_DIR / env_file)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ALLOWED_HOSTS = []
 
@@ -26,12 +27,19 @@ DATABASES = {
     }
 }
 
+#s3서비스
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_S3_UPLOAD_BUCKET="oz-main-pill-imgs"
+AWS_S3_UPLOAD_REGION="ap-northeast-2"
+AWS_S3_UPLOAD_BASE_URL="https://oz-main-pill-imgs.s3.ap-northeast-2.amazon.com"
+
 # Email서비스
 AUTH_USER_MODEL = "users.User"
 # sendgrid
 EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_HOST_USER = "apikey"
-EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")  # .env에서 불러오기
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.getenv('WELCOME_EMAIL_SENDER')
@@ -87,8 +95,9 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.pills",
     "apps.bookmarks",
+    "apps.pills.search_histories",
+    "apps.pills.search_uploads",
     #'apps.me'
-    "apps.my_requests",
 ]
 
 # DRF
