@@ -6,8 +6,14 @@ from rest_framework.settings import api_settings
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+settings_module = os.getenv("DJANGO_SETTINGS_MODULE", "")
 
-env_file = os.getenv("ENV_FILE", ".env.dev")
+if settings_module.endswith("prod"):
+    default_env_file = "envs/.env.prod"
+else:
+    default_env_file = "envs/.env.dev"
+
+env_file = os.getenv("ENV_FILE", default_env_file)
 load_dotenv(BASE_DIR / env_file)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -89,6 +95,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",  # static 파일 처리
     "corsheaders",
     # DRF
+    "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
