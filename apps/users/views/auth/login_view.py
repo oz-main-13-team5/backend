@@ -93,7 +93,7 @@ class LoginView(APIView):
             key="refresh_token",
             value=token_pair["refresh"],
             httponly=True,
-            secure=True,
+            secure=False,
             samesite="Lax",
             max_age=int(refresh_lifetime.total_seconds()),
         )
