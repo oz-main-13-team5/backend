@@ -22,18 +22,30 @@ class PillListSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request:
             return False
-        return is_marked_pill(getattr(request, "user", None), obj)
+        marked_ids = is_marked_pill(
+            getattr(request, "user", None), PillItem.objects.filter(pk=obj.pk)
+        )
+        return obj.item_seq in marked_ids
+
 
 class PillSearchSerializer(serializers.ModelSerializer):
     is_marked = serializers.SerializerMethodField()
 
     class Meta:
         model = PillItem
-        fields = ["item_seq", "item_name", "efcy_qesitm", "entp_name", "item_image_url", "is_marked"]
+        fields = [
+            "item_seq",
+            "item_name",
+            "efcy_qesitm",
+            "entp_name",
+            "item_image_url",
+            "is_marked",
+        ]
 
     def get_is_marked(self, obj):
         marked_ids = self.context.get("marked_ids", set())
         return "true" if obj.item_seq in marked_ids else "false"
+
 
 class PillDetailSerializer(serializers.ModelSerializer):
     is_marked = serializers.SerializerMethodField()
@@ -46,4 +58,7 @@ class PillDetailSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if not request:
             return False
-        return is_marked_pill(getattr(request, "user", None), obj)
+        marked_ids = is_marked_pill(
+            getattr(request, "user", None), PillItem.objects.filter(pk=obj.pk)
+        )
+        return obj.item_seq in marked_ids

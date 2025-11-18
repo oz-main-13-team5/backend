@@ -7,13 +7,14 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 
 from apps.users.models.user_auth_email import UserAuthEmail
-from apps.users.serializers.auth import EmailSendSerializer, EmailVerifySerializer
+from apps.users.serializers.email import EmailSendSerializer, EmailVerifySerializer
 from apps.users.services.email_service import EmailService
 
 
 # code email 발송
 class EmailSendView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = EmailSendSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -27,7 +28,7 @@ class EmailSendView(APIView):
 
         expires_at = now() + timedelta(minutes=3)
 
-        obj, created = UserAuthEmail.objects.update_or_create(
+        UserAuthEmail.objects.update_or_create(
             email=email,
             defaults={
                 "auth_code": auth_code,
@@ -41,13 +42,14 @@ class EmailSendView(APIView):
         EmailService.send_verification_email(email, auth_code)
 
         return Response(
-            {"message": "인증번호가 발송 되었습니다."}, status=status.HTTP_200_OK
+            {"detail": "인증번호가 발송 되었습니다."}, status=status.HTTP_200_OK
         )
 
 
 # code검증
 class EmailVerifyView(APIView):
     permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = EmailVerifySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)

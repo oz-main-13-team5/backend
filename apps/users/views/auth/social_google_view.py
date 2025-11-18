@@ -14,10 +14,12 @@ from rest_framework.views import APIView
 
 # 로그인 URL생성
 class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         google_auth_url = (
-            "https://accounts.google.com/o/oauth2/v2/auth"
-            "?response_type=code"
+            f"{settings.GOOGLE_AUTH_URL}"
+            f"?response_type={settings.GOOGLE_AUTH_RESPONSE_TYPE}"
             f"&client_id={settings.GOOGLE_CLIENT_ID}"
             f"&redirect_uri={settings.GOOGLE_REDIRECT_URI}"
             "&scope=openid%20email%20profile"
@@ -84,5 +86,6 @@ class GoogleCallbackView(APIView):
                 "access_token": jwt_tokens["access"],
                 "refresh_token": jwt_tokens["refresh"],
                 "email": user.email,
-            }
+            },
+            status=status.HTTP_200_OK,
         )

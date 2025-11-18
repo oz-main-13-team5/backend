@@ -6,12 +6,19 @@ from rest_framework.settings import api_settings
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
+settings_module = os.getenv("DJANGO_SETTINGS_MODULE", "")
 
-env_file = os.getenv("ENV_FILE", ".env.dev")
+if settings_module.endswith("prod"):
+    default_env_file = "envs/.env.prod"
+else:
+    default_env_file = "envs/.env.dev"
+
+env_file = os.getenv("ENV_FILE", default_env_file)
 load_dotenv(BASE_DIR / env_file)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ALLOWED_HOSTS = []
 
@@ -26,32 +33,57 @@ DATABASES = {
     }
 }
 
+#s3서비스
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_S3_UPLOAD_BUCKET="oz-main-pill-imgs"
+AWS_S3_UPLOAD_REGION="ap-northeast-2"
+AWS_S3_UPLOAD_BASE_URL="https://oz-main-pill-imgs.s3.ap-northeast-2.amazon.com"
+
 # Email서비스
 AUTH_USER_MODEL = "users.User"
 # sendgrid
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # .env에서 불러오기
+EMAIL_HOST = "smtp.sendgrid.net"
+EMAIL_HOST_USER = "apikey"
+EMAIL_HOST_PASSWORD = os.getenv("SENDGRID_API_KEY")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = os.getenv('WELCOME_EMAIL_SENDER')
 
 # 소셜로그인 서비스
 # Google OAuth Credentials
+GOOGLE_AUTH_URL = os.getenv("GOOGLE_AUTH_URL")
+GOOGLE_AUTH_RESPONSE_TYPE = "code"
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 GOOGLE_REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI")
 GOOGLE_TOKEN_URL = os.getenv("GOOGLE_TOKEN_URL")
 GOOGLE_USERINFO_URL = os.getenv("GOOGLE_USERINFO_URL")
 # Kakao OAuth
+KAKAO_AUTH_URL = os.getenv("KAKAO_AUTH_URL")
 KAKAO_CLIENT_ID = os.getenv("KAKAO_CLIENT_ID")
 KAKAO_CLIENT_SECRET = os.getenv("KAKAO_CLIENT_SECRET")
 KAKAO_REDIRECT_URI = os.getenv("KAKAO_REDIRECT_URI")
 KAKAO_TOKEN_URL = os.getenv("KAKAO_TOKEN_URL")
 KAKAO_USERINFO_URL = os.getenv("KAKAO_USERINFO_URL")
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 8},
+    },
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {"NAME": "apps.users.validators.CustomPasswordValidator"},
+]
+
 # 공공데이터 URL
-MFDS_BASE_URL = "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+MFDS_BASE_URL = (
+    "http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList"
+)
 MFDS_API_KEY = os.getenv("MFDS_API_KEY")
 
 INSTALLED_APPS = [
@@ -63,6 +95,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",  # static 파일 처리
     "corsheaders",
     # DRF
+    "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
@@ -70,6 +103,8 @@ INSTALLED_APPS = [
     "apps.bookmarks",
     #'apps.me'
     "apps.my_requests",
+    "apps.pills.search_histories",
+    "apps.pills.search_uploads",
 ]
 
 # DRF
@@ -80,7 +115,21 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticated",
     ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
+
+SPECTACULAR_SERVER_URL = os.getenv("SPECTACULAR_SERVER_URL")
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Team5 Backend API",
+    "DESCRIPTION": "북마크, 마이페이지, 이미지 업로드 등 주요 엔드포인트 문서",
+    "VERSION": "1.0.0",
+}
+
+if SPECTACULAR_SERVER_URL:
+    SPECTACULAR_SETTINGS["SERVERS"] = [
+        {"url": SPECTACULAR_SERVER_URL, "description": "Production"}
+    ]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),

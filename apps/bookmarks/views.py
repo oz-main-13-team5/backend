@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+
 from .models import Bookmark
 from .serializers import (
     BookmarkSerializer,
@@ -10,7 +11,6 @@ from .serializers import (
     BookmarkDeleteSerializer,
 )
 from .utils import user_bookmark_count, get_user_bookmark
-# ⚠️ PillItem 모델 위치에 맞게 수정
 from apps.pills.models import PillItem
 
 class BookmarkPagination(PageNumberPagination):
@@ -74,7 +74,7 @@ class BookmarkView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         item_seq = serializer.validated_data['item_seq']
-        
+
         # 약품 정보 조회 (pill_items 테이블)
         try:
             pill = PillItem.objects.get(item_seq=item_seq)
@@ -83,10 +83,10 @@ class BookmarkView(APIView):
                 "error": "요청한 의약품의 정보가 없습니다.",
                 "code": 404
             }, status=status.HTTP_404_NOT_FOUND)
-        
+
         # 현재 북마크 개수 (중복/제한 체크를 위해 선조회)
         current_count = user_bookmark_count(request.user)
-        
+
         # 20개 제한 체크
         if current_count >= 20:
             return Response({
@@ -94,18 +94,18 @@ class BookmarkView(APIView):
                 "message": "북마크는 최대 20개까지만 저장할 수 있습니다.",
                 "current_count": current_count
             }, status=status.HTTP_201_CREATED)  # 명세서 기준 201 유지
-        
+
         # 중복 체크
         if Bookmark.objects.filter(user=request.user, pill=pill).exists():
             return Response({
                 "error": "이미 북마크에 추가된 약품입니다.",
                 "code": 409
             }, status=status.HTTP_409_CONFLICT)
-        
+
         # 북마크 생성
         Bookmark.objects.create(user=request.user, pill=pill)
         current_count = user_bookmark_count(request.user)
-        
+
         # 응답 (명세서 기준)
         return Response({
             "success": True,
@@ -131,7 +131,7 @@ class BookmarkView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         item_seq = serializer.validated_data['item_seq']
-        
+
         # 본인의 북마크만 삭제 가능
         bookmark = get_user_bookmark(request.user, item_seq)
         if bookmark is None:
@@ -140,7 +140,7 @@ class BookmarkView(APIView):
                 "code": 404
             }, status=status.HTTP_404_NOT_FOUND)
         bookmark.delete()
-        
+
         # 삭제 후 남은 개수 반환
         current_count = user_bookmark_count(request.user)
         return Response({

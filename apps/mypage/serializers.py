@@ -35,17 +35,6 @@ class UserNicknameUpdateSerializer(serializers.Serializer):
         max_length=20,
     )
 
-    def validate_nickname(self, value):
-        user = self.context.get("request_user")
-        if (
-            value
-            and User.objects.exclude(pk=getattr(user, "pk", None))
-            .filter(nickname=value)
-            .exists()
-        ):
-            raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
-        return value
-
 
 class UserPasswordUpdateSerializer(serializers.Serializer):
     current_password = serializers.CharField(
