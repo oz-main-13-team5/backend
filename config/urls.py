@@ -19,15 +19,12 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
-from apps.uploads.views import PillImageUploadView
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("user/", include("apps.users.urls.user_urls")),
     path("auth/", include("apps.users.urls.auth_urls")),
-    path("", include("apps.bookmarks.urls")),
-    path("", include("apps.mypage.urls")),
-    path("pills/image/", PillImageUploadView.as_view(), name="pill-image-upload"),
+    path("bookmarks/", include("apps.bookmarks.urls")),
+    path("mypage/", include("apps.mypage.urls")),
     path("pills/", include("apps.pills.urls")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(

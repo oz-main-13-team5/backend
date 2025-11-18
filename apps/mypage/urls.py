@@ -8,7 +8,7 @@ from .views import (
 
 
 urlpatterns = [
-    path("me/", UserProfileView.as_view(), name="my-page"),
-    path("me/nickname/", UserNicknameUpdateView.as_view(), name="my-page-nickname"),
-    path("me/password/", UserPasswordUpdateView.as_view(), name="my-page-password"),
+    path("", UserProfileView.as_view(), name="my-page"),
+    path("nickname/", UserNicknameUpdateView.as_view(), name="my-page-nickname"),
+    path("password/", UserPasswordUpdateView.as_view(), name="my-page-password"),
 ]
