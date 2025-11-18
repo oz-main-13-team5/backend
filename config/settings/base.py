@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",  # static 파일 처리
     "corsheaders",
     # DRF
+    "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     # 프로젝트 앱
     "apps.users",
