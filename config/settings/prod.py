@@ -6,7 +6,7 @@ ALLOWED_HOSTS = [
     "ec2-13-209-193-43.ap-northeast-2.compute.amazonaws.com",
     "localhost",
     "127.0.0.1",
-    "mydomain.com",
+    "search-pill.p-e.kr",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -14,7 +14,7 @@ CSRF_TRUSTED_ORIGINS = [
     "localhost",
     "127.0.0.1",
     "https://frontend-mu-ruby.vercel.app",
-    "http://mydomain.com",
+    "https://search-pill.p-e.kr",
     "http://localhost:5173",
 ]
 
