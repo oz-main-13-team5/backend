@@ -31,9 +31,3 @@ class BookmarkViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         result, code = remove_bookmark(request.user, pk)
         return Response(result, status=code)
-
-    @action(detail=False, methods=["POST"], url_path="remove")
-    def remove_bookmark_by_body(self, request):
-        item_seq = request.data.get("item_seq")
-        result, code = remove_bookmark(request.user, item_seq)
-        return Response(result, status=code)
