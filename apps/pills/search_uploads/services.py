@@ -1,3 +1,4 @@
+import re
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -34,7 +35,9 @@ class S3Uploader:
 
     def upload(self, file_obj: BinaryIO, filename: str, content_type: Optional[str] = None) -> S3UploadResult:
         key = self._build_key(filename)
-        extra_args = {"ACL": self.acl}
+        extra_args = {}
+        if self.acl:
+            extra_args["ACL"] = self.acl
         if content_type:
             extra_args["ContentType"] = content_type
         self.client.upload_fileobj(file_obj, self.bucket_name, key, ExtraArgs=extra_args)
@@ -45,7 +48,8 @@ class S3Uploader:
         sanitized_prefix = self.prefix.strip("/")
         prefix = f"{sanitized_prefix}/" if sanitized_prefix else ""
         unique_part = self._generate_unique_id()
-        return f"{prefix}{unique_part}-{filename}"
+        safe_name = self._sanitize_filename(filename)
+        return f"{prefix}{unique_part}-{safe_name}"
 
     def _generate_unique_id(self) -> str:
         """숫자형(정수 문자열)으로 된 고유 값을 생성한다."""
@@ -59,3 +63,9 @@ class S3Uploader:
             return f"{base_url.rstrip('/')}/{key}"
         region_part = f".{self.region}" if self.region else ""
         return f"https://{self.bucket_name}.s3{region_part}.amazonaws.com/{key}"
+
+    def _sanitize_filename(self, filename: str) -> str:
+        """S3에서 안전하게 사용할 수 있도록 파일명을 정규화한다."""
+        safe = re.sub(r"[^A-Za-z0-9._-]", "_", filename)
+        safe = safe.strip("._-") or "upload"
+        return safe[-120:]
