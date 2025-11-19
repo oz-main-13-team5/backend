@@ -104,9 +104,10 @@ INSTALLED_APPS = [
     "apps.users",
     "apps.pills",
     "apps.bookmarks",
+    #'apps.me'
+    "apps.my_requests",
     "apps.pills.search_histories",
     "apps.pills.search_uploads",
-    #'apps.me'
 ]
 
 # DRF
