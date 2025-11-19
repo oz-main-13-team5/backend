@@ -33,12 +33,15 @@ DATABASES = {
     }
 }
 
-#s3서비스
+# s3 서비스
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_S3_UPLOAD_BUCKET="oz-main-pill-imgs"
-AWS_S3_UPLOAD_REGION="ap-northeast-2"
-AWS_S3_UPLOAD_BASE_URL="https://oz-main-pill-imgs.s3.ap-northeast-2.amazon.com"
+AWS_S3_UPLOAD_BUCKET = os.getenv("AWS_S3_UPLOAD_BUCKET", "oz-main-pill-imgs")
+AWS_S3_UPLOAD_REGION = os.getenv("AWS_S3_UPLOAD_REGION", "ap-northeast-2")
+default_s3_base_url = (
+    f"https://{AWS_S3_UPLOAD_BUCKET}.s3.{AWS_S3_UPLOAD_REGION}.amazonaws.com"
+)
+AWS_S3_UPLOAD_BASE_URL = os.getenv("AWS_S3_UPLOAD_BASE_URL", default_s3_base_url)
 
 # Email서비스
 AUTH_USER_MODEL = "users.User"
