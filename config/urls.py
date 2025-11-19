@@ -16,8 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+from apps.mypage.views import UserMeView, UserPasswordUpdateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,5 +33,11 @@ urlpatterns = [
         "swagger/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
+    ),
+    re_path(r"^users/me/?$", UserMeView.as_view(), name="users-me"),
+    re_path(
+        r"^users/me/change-password/?$",
+        UserPasswordUpdateView.as_view(),
+        name="users-me-password",
     ),
 ]
