@@ -8,7 +8,5 @@ class UserDeactivateView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
-        user = request.user
-        user.soft_delete()
-
+        request.user.soft_delete()
         return Response({"회원 탈퇴가 완료되었습니다."}, status=status.HTTP_200_OK)

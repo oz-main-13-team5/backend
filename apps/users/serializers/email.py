@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from apps.users.models.user_auth_email import UserAuthEmail
 
 
 # 이메일 형식 검증

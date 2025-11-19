@@ -7,6 +7,4 @@ class TenPerPagePagination(PageNumberPagination):
     max_page_size = 50
 
     def get_paginated_response(self, data):
-        return Response({
-            "records": data
-        })
+        return Response({"records": data})

@@ -16,7 +16,7 @@ User = get_user_model()
 
 class UserProfileView(APIView):
     """
-    /me 엔드포인트를 담당하는 View (조회 전용)
+    /mypage/ 엔드포인트를 담당하는 View (조회 전용)
     """
 
     permission_classes = [IsAuthenticated]
@@ -35,20 +35,13 @@ class UserNicknameUpdateView(APIView):
         )
         if not serializer.is_valid():
             return Response(
-                {"error": "입력값이 올바르지 않습니다", "code": 400, "details": serializer.errors},
+                {"details": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         request.user.nickname = serializer.validated_data["nickname"]
         request.user.save(update_fields=["nickname"])
-
-        return Response(
-            {
-                "success": True,
-                "message": "닉네임이 변경되었습니다.",
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UserPasswordUpdateView(APIView):
@@ -60,17 +53,10 @@ class UserPasswordUpdateView(APIView):
         )
         if not serializer.is_valid():
             return Response(
-                {"error": "입력값이 올바르지 않습니다", "code": 400, "details": serializer.errors},
+                {"details": serializer.errors},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         request.user.set_password(serializer.validated_data["new_password"])
         request.user.save(update_fields=["password"])
-
-        return Response(
-            {
-                "success": True,
-                "message": "비밀번호가 변경되었습니다.",
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
