@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Bookmark
-from apps.pills.models import PillItem
 
 class BookmarkSerializer(serializers.ModelSerializer):
     """
@@ -16,8 +15,8 @@ class BookmarkSerializer(serializers.ModelSerializer):
     item_name = serializers.CharField(source='pill.item_name', read_only=True)
     entp_name = serializers.CharField(source='pill.entp_name', read_only=True)
     item_image_url = serializers.URLField(
-        source='pill.item_image_url', 
-        read_only=True, 
+        source='pill.item_image_url',
+        read_only=True,
         allow_null=True
     )
     
@@ -31,32 +30,3 @@ class BookmarkSerializer(serializers.ModelSerializer):
             'item_image_url',  # 약품 이미지 URL (pill_items 테이블에서)
         ]
         read_only_fields = ['id', 'item_seq']
-
-class BookmarkCreateSerializer(serializers.Serializer):
-    """
-    북마크 추가용 Serializer
-    
-    프론트엔드에서 {"item_seq": "101"} 받음
-    API 명세서 기준
-    """
-    item_seq = serializers.CharField(required=True)
-    
-    def validate_item_seq(self, value):
-        """item_seq 검증 (빈 값 체크)"""
-        if not value or value.strip() == '':
-            raise serializers.ValidationError("item_seq는 필수입니다.")
-        return value
-
-class BookmarkDeleteSerializer(serializers.Serializer):
-    """
-    북마크 삭제용 Serializer
-
-    프론트엔드에서 {"item_seq": "P001"} 받음
-    """
-
-    item_seq = serializers.CharField(required=True)
-
-    def validate_item_seq(self, value):
-        if not value or value.strip() == "":
-            raise serializers.ValidationError("item_seq는 필수입니다.")
-        return value
